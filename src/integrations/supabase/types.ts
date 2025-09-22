@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      life_wheel: {
+        Row: {
+          area_name: string
+          created_at: string
+          current_score: number
+          desired_score: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area_name: string
+          created_at?: string
+          current_score?: number
+          desired_score?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area_name?: string
+          created_at?: string
+          current_score?: number
+          desired_score?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +74,69 @@ export type Database = {
           name?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      values: {
+        Row: {
+          created_at: string
+          id: string
+          selected: boolean
+          updated_at: string
+          user_id: string
+          value_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          selected?: boolean
+          updated_at?: string
+          user_id: string
+          value_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          selected?: boolean
+          updated_at?: string
+          user_id?: string
+          value_name?: string
+        }
+        Relationships: []
+      }
+      vision: {
+        Row: {
+          created_at: string
+          id: string
+          phrase_year: string | null
+          updated_at: string
+          user_id: string
+          vision_1y: string | null
+          vision_3y: string | null
+          word_year: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phrase_year?: string | null
+          updated_at?: string
+          user_id: string
+          vision_1y?: string | null
+          vision_3y?: string | null
+          word_year?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phrase_year?: string | null
+          updated_at?: string
+          user_id?: string
+          vision_1y?: string | null
+          vision_3y?: string | null
+          word_year?: string | null
+          year?: number
         }
         Relationships: []
       }

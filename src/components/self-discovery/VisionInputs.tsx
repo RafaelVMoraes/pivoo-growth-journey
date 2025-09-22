@@ -1,0 +1,106 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface VisionData {
+  vision_1y?: string;
+  vision_3y?: string;
+}
+
+interface VisionInputsProps {
+  visionData: VisionData;
+  onUpdate: (updates: Partial<VisionData>) => void;
+  saving: boolean;
+}
+
+export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps) => {
+  const [expanded, setExpanded] = useState<{vision1y: boolean, vision3y: boolean}>({
+    vision1y: false,
+    vision3y: false
+  });
+
+  const handleExpand = (type: 'vision1y' | 'vision3y') => {
+    setExpanded(prev => ({ ...prev, [type]: !prev[type] }));
+  };
+
+  const handleChange = (field: keyof VisionData, value: string) => {
+    onUpdate({ [field]: value });
+  };
+
+  return (
+    <Card className="gradient-card shadow-soft">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg">Future Vision</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Describe your aspirations and goals for the future
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* 1 Year Vision */}
+        <div className="space-y-3">
+          <Button
+            variant="ghost"
+            onClick={() => handleExpand('vision1y')}
+            className="w-full justify-between p-0 h-auto font-medium text-base hover:bg-transparent"
+          >
+            <Label htmlFor="vision-1y" className="cursor-pointer">
+              Vision for 1 year
+            </Label>
+            {expanded.vision1y ? (
+              <ChevronUp size={18} className="text-muted-foreground" />
+            ) : (
+              <ChevronDown size={18} className="text-muted-foreground" />
+            )}
+          </Button>
+          
+          {expanded.vision1y && (
+            <div className="animate-fade-in">
+              <Textarea
+                id="vision-1y"
+                placeholder="Where do you see yourself in one year? What goals will you have achieved? How will your life be different?"
+                value={visionData.vision_1y || ''}
+                onChange={(e) => handleChange('vision_1y', e.target.value)}
+                disabled={saving}
+                className="min-h-[100px] resize-none"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 3 Year Vision */}
+        <div className="space-y-3">
+          <Button
+            variant="ghost"
+            onClick={() => handleExpand('vision3y')}
+            className="w-full justify-between p-0 h-auto font-medium text-base hover:bg-transparent"
+          >
+            <Label htmlFor="vision-3y" className="cursor-pointer">
+              Vision for 3 years
+            </Label>
+            {expanded.vision3y ? (
+              <ChevronUp size={18} className="text-muted-foreground" />
+            ) : (
+              <ChevronDown size={18} className="text-muted-foreground" />
+            )}
+          </Button>
+          
+          {expanded.vision3y && (
+            <div className="animate-fade-in">
+              <Textarea
+                id="vision-3y"
+                placeholder="What's your bigger picture? Where do you want to be in three years? What major transformations do you envision?"
+                value={visionData.vision_3y || ''}
+                onChange={(e) => handleChange('vision_3y', e.target.value)}
+                disabled={saving}
+                className="min-h-[100px] resize-none"
+              />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

@@ -1,16 +1,54 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Circle, 
   Heart, 
   Compass, 
   Star, 
   ArrowRight,
-  Clock
+  Clock,
+  BarChart3,
+  List,
+  Loader2
 } from 'lucide-react';
+import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
+import { LifeWheelChart } from '@/components/self-discovery/LifeWheelChart';
+import { LifeWheelSliders } from '@/components/self-discovery/LifeWheelSliders';
+import { ValuesSelection } from '@/components/self-discovery/ValuesSelection';
+import { VisionInputs } from '@/components/self-discovery/VisionInputs';
+import { YearFocus } from '@/components/self-discovery/YearFocus';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const SelfDiscovery = () => {
+  const { user } = useAuth();
+  const [viewMode, setViewMode] = useState<'chart' | 'list'>('chart');
+  const {
+    loading,
+    saving,
+    lifeWheelData,
+    valuesData,
+    visionData,
+    selectedValuesCount,
+    updateLifeWheel,
+    updateValues,
+    updateVision,
+    PREDEFINED_VALUES
+  } = useSelfDiscovery();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] animate-fade-in">
+        <div className="text-center space-y-4">
+          <Loader2 size={32} className="animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading your self-discovery data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -19,102 +57,103 @@ export const SelfDiscovery = () => {
         <p className="text-muted-foreground">
           Explore your inner landscape and authentic self
         </p>
+        {saving && (
+          <div className="flex items-center justify-center gap-2 text-sm text-primary">
+            <Loader2 size={16} className="animate-spin" />
+            Saving changes...
+          </div>
+        )}
       </div>
 
-      {/* Main Feature - Wheel of Life */}
-      <Card className="gradient-card shadow-card text-center">
-        <CardHeader className="pb-4">
-          <div className="relative mx-auto w-20 h-20 mb-4">
-            <Circle size={80} className="text-primary opacity-20 absolute" />
-            <Circle size={60} className="text-primary opacity-40 absolute top-2.5 left-2.5" />
-            <Circle size={40} className="text-primary opacity-60 absolute top-5 left-5" />
-            <Star size={20} className="text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+      <Tabs defaultValue="wheel" className="space-y-6">
+        <TabsList className="grid grid-cols-4 w-full">
+          <TabsTrigger value="wheel" className="text-xs">Life Wheel</TabsTrigger>
+          <TabsTrigger value="values" className="text-xs">Values</TabsTrigger>
+          <TabsTrigger value="vision" className="text-xs">Vision</TabsTrigger>
+          <TabsTrigger value="focus" className="text-xs">Year Focus</TabsTrigger>
+        </TabsList>
+
+        {/* Life Wheel Tab */}
+        <TabsContent value="wheel" className="space-y-6">
+          {/* View Toggle for Mobile */}
+          <div className="flex justify-center">
+            <div className="bg-muted p-1 rounded-lg flex gap-1">
+              <Button
+                variant={viewMode === 'chart' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('chart')}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 size={16} />
+                Chart
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="flex items-center gap-2"
+              >
+                <List size={16} />
+                List
+              </Button>
+            </div>
           </div>
-          <CardTitle className="text-xl">Wheel of Life</CardTitle>
-          <CardDescription>
-            Assess and visualize balance across all areas of your life
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap justify-center gap-2">
-            <Badge variant="outline" className="text-xs">Career</Badge>
-            <Badge variant="outline" className="text-xs">Relationships</Badge>
-            <Badge variant="outline" className="text-xs">Health</Badge>
-            <Badge variant="outline" className="text-xs">Personal Growth</Badge>
-            <Badge variant="outline" className="text-xs">Recreation</Badge>
-            <Badge variant="outline" className="text-xs">Environment</Badge>
-          </div>
-          
-          <Button disabled className="shadow-soft">
-            Start Your Assessment
-            <ArrowRight size={16} className="ml-2" />
-          </Button>
-        </CardContent>
-      </Card>
 
-      {/* Additional Tools */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Explore More Tools</h2>
-        
-        <div className="grid gap-4">
-          <Card className="gradient-card shadow-soft">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Heart size={18} className="text-primary" />
-                Values Discovery
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  <Clock size={10} className="mr-1" />
-                  15 min
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Identify your core values and what truly matters to you
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          {/* Chart or Sliders View */}
+          {viewMode === 'chart' ? (
+            <LifeWheelChart data={lifeWheelData} />
+          ) : (
+            <LifeWheelSliders 
+              data={lifeWheelData}
+              onUpdate={updateLifeWheel}
+              saving={saving}
+            />
+          )}
+        </TabsContent>
 
-          <Card className="gradient-card shadow-soft">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Compass size={18} className="text-primary" />
-                Purpose Explorer
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  <Clock size={10} className="mr-1" />
-                  20 min
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Discover your life purpose and direction through guided reflection
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        {/* Values Tab */}
+        <TabsContent value="values" className="space-y-6">
+          <ValuesSelection
+            valuesData={valuesData}
+            selectedCount={selectedValuesCount}
+            onUpdate={updateValues}
+            categories={PREDEFINED_VALUES}
+            saving={saving}
+          />
+        </TabsContent>
 
-          <Card className="gradient-card shadow-soft">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Star size={18} className="text-primary" />
-                Strengths Assessment
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  <Clock size={10} className="mr-1" />
-                  10 min
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Uncover your natural talents and areas of excellence
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
+        {/* Vision Tab */}
+        <TabsContent value="vision" className="space-y-6">
+          <VisionInputs
+            visionData={visionData}
+            onUpdate={updateVision}
+            saving={saving}
+          />
+        </TabsContent>
 
-      {/* Coming Soon Notice */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="pt-6 text-center">
-          <p className="text-sm text-primary font-medium">
-            Self-discovery tools are coming soon! These powerful assessments will help you gain deeper insights into yourself.
-          </p>
-        </CardContent>
-      </Card>
+        {/* Year Focus Tab */}
+        <TabsContent value="focus" className="space-y-6">
+          <YearFocus
+            visionData={visionData}
+            onUpdate={updateVision}
+            saving={saving}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* Guest Mode Notice */}
+      {!user && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6 text-center">
+            <p className="text-sm text-primary font-medium mb-2">
+              You're in guest mode. Your changes are saved locally but won't persist across devices.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>
+              Sign up to save your progress
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
