@@ -1,22 +1,10 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar, Target, TrendingUp, Heart, Sparkles } from 'lucide-react';
-import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
-import { useNavigate } from 'react-router-dom';
+import { Calendar, Target, TrendingUp, Heart } from 'lucide-react';
 
 export const Dashboard = () => {
   const { user, isGuest } = useAuth();
-  const navigate = useNavigate();
-  const { valuesData, visionData, lifeWheelData, selectedValuesCount } = useSelfDiscovery();
-
-  // Check if user has completed any self-discovery activities
-  const hasStartedSelfDiscovery = !isGuest && (
-    selectedValuesCount > 0 ||
-    (visionData.vision_1y || visionData.vision_3y || visionData.word_year || visionData.phrase_year) ||
-    lifeWheelData.some(area => area.current_score !== 5 || area.desired_score !== 8)
-  );
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -32,34 +20,6 @@ export const Dashboard = () => {
           }
         </p>
       </div>
-
-      {/* Self-Discovery CTA - Only shown when user hasn't started */}
-      {!isGuest && !hasStartedSelfDiscovery && (
-        <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/5 to-primary-glow/10 shadow-glow animate-scale-in">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent"></div>
-          <CardContent className="relative pt-6 pb-8">
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-glow animate-pulse">
-                <Sparkles size={32} className="text-primary-foreground" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-foreground">Discover Your True Self</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Start your journey of self-discovery. Understand your values, visualize your future, and create a life aligned with who you truly are.
-                </p>
-              </div>
-              <Button 
-                size="lg"
-                onClick={() => navigate('/self-discovery')}
-                className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 shadow-glow hover:shadow-lg transition-all duration-300 animate-pulse hover:animate-none text-white font-semibold px-8"
-              >
-                <Sparkles size={20} className="mr-2" />
-                Begin Self-Discovery
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Daily Check-in Card */}
       <Card className="gradient-card shadow-card">
