@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      goals: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          life_wheel_area: string | null
+          related_values: string[] | null
+          status: string | null
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          life_wheel_area?: string | null
+          related_values?: string[] | null
+          status?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          life_wheel_area?: string | null
+          related_values?: string[] | null
+          status?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       life_wheel: {
         Row: {
           area_name: string
