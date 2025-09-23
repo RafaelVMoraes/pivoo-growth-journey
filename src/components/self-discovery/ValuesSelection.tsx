@@ -57,7 +57,7 @@ export const ValuesSelection = ({
                   size="sm"
                   onClick={() => handleValueClick(value.value_name, value.selected)}
                   disabled={saving}
-                  className="animate-pulse hover:animate-none"
+                  className="animate-scale-in hover:animate-none shadow-glow"
                 >
                   {value.value_name}
                   <Check size={14} className="ml-1" />
@@ -81,12 +81,12 @@ export const ValuesSelection = ({
                   
                   return (
                     <Button
-                      key={valueName}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleValueClick(valueName, valueData.selected)}
-                      disabled={saving || (selectedCount >= 7 && !valueData.selected)}
-                      className="justify-start text-left h-auto py-2 px-3 hover:animate-pulse"
+                  key={valueName}
+                  variant="glass"
+                  size="sm"
+                  onClick={() => handleValueClick(valueName, valueData.selected)}
+                  disabled={saving || (selectedCount >= 7 && !valueData.selected)}
+                  className="justify-start text-left h-auto py-2 px-3 chip-glass hover:animate-none"
                     >
                       {valueName}
                     </Button>
