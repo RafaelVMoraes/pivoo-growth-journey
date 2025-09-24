@@ -4,8 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target, Plus, Clock, CheckCircle, Tag, Bell } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import { AddGoalDialog } from '@/components/goals/AddGoalDialog';
-import { GoalCard } from '@/components/goals/GoalCard';
+import { EnhancedAddGoalDialog } from '@/components/goals/EnhancedAddGoalDialog';
+import { EnhancedGoalCard } from '@/components/goals/EnhancedGoalCard';
 
 export const Goals = () => {
   const { user, isGuest } = useAuth();
@@ -32,12 +32,12 @@ export const Goals = () => {
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold text-foreground">Goals</h1>
             {!isGuest && (
-              <AddGoalDialog>
+              <EnhancedAddGoalDialog>
                 <Button className="gap-2">
                   <Plus size={20} />
                   Add Goal
                 </Button>
-              </AddGoalDialog>
+              </EnhancedAddGoalDialog>
             )}
           </div>
           <p className="text-muted-foreground">
@@ -49,7 +49,7 @@ export const Goals = () => {
         {hasGoals ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {goals.map(goal => (
-              <GoalCard key={goal.id} goal={goal} />
+              <EnhancedGoalCard key={goal.id} goal={goal} />
             ))}
           </div>
         ) : (
@@ -76,12 +76,12 @@ export const Goals = () => {
                     Sign up to start tracking your goals and connect them with your values
                   </p>
                 ) : (
-                  <AddGoalDialog>
+                  <EnhancedAddGoalDialog>
                     <Button className="gap-2">
                       <Plus size={20} />
                       Add Your First Goal
                     </Button>
-                  </AddGoalDialog>
+                  </EnhancedAddGoalDialog>
                 )}
               </div>
             </div>
@@ -131,6 +131,20 @@ export const Goals = () => {
           </>
         )}
       </div>
+
+      {/* Floating Action Button */}
+      {!isGuest && (
+        <div className="fixed bottom-20 right-4 z-50">
+          <EnhancedAddGoalDialog>
+            <Button 
+              size="lg" 
+              className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+            >
+              <Plus size={24} />
+            </Button>
+          </EnhancedAddGoalDialog>
+        </div>
+      )}
     </div>
   );
 };

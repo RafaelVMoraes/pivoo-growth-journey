@@ -26,8 +26,10 @@ export const GoalCard = ({ goal }: GoalCardProps) => {
     switch (goal.status) {
       case 'completed':
         return <CheckCircle2 size={20} className="text-green-500" />;
-      case 'paused':
+      case 'on_hold':
         return <Pause size={20} className="text-yellow-500" />;
+      case 'in_progress':
+        return <Play size={20} className="text-blue-500" />;
       default:
         return <Target size={20} className="text-primary" />;
     }
@@ -37,8 +39,12 @@ export const GoalCard = ({ goal }: GoalCardProps) => {
     switch (goal.status) {
       case 'completed':
         return 'bg-green-500/20 text-green-300';
-      case 'paused':
+      case 'on_hold':
         return 'bg-yellow-500/20 text-yellow-300';
+      case 'in_progress':
+        return 'bg-blue-500/20 text-blue-300';
+      case 'archived':
+        return 'bg-gray-500/20 text-gray-300';
       default:
         return 'bg-primary/20 text-primary';
     }

@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          created_at: string
+          description: string
+          frequency: string | null
+          goal_id: string
+          id: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          frequency?: string | null
+          goal_id: string
+          id?: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          frequency?: string | null
+          goal_id?: string
+          id?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      check_ins: {
+        Row: {
+          activity_id: string | null
+          created_at: string
+          date: string
+          goal_id: string
+          id: string
+          input_type: string | null
+          progress_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_id?: string | null
+          created_at?: string
+          date?: string
+          goal_id: string
+          id?: string
+          input_type?: string | null
+          progress_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string | null
+          created_at?: string
+          date?: string
+          goal_id?: string
+          id?: string
+          input_type?: string | null
+          progress_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           category: string | null
@@ -25,6 +117,7 @@ export type Database = {
           status: string | null
           target_date: string | null
           title: string
+          type: string | null
           updated_at: string
           user_id: string
         }
@@ -38,6 +131,7 @@ export type Database = {
           status?: string | null
           target_date?: string | null
           title: string
+          type?: string | null
           updated_at?: string
           user_id: string
         }
@@ -51,6 +145,7 @@ export type Database = {
           status?: string | null
           target_date?: string | null
           title?: string
+          type?: string | null
           updated_at?: string
           user_id?: string
         }

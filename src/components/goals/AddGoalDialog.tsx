@@ -41,6 +41,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
         description: description.trim() || undefined,
         category: category || undefined,
         target_date: targetDate || undefined,
+        type: 'outcome',
         status: 'active',
         life_wheel_area: lifeWheelArea || undefined,
         related_values: selectedValues.length > 0 ? selectedValues : undefined,

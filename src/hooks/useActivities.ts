@@ -3,48 +3,45 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-export interface Goal {
+export interface Activity {
   id: string;
+  goal_id: string;
   user_id: string;
-  title: string;
-  description?: string;
-  category?: string;
-  target_date?: string;
-  type: 'outcome' | 'process';
-  status: 'active' | 'in_progress' | 'on_hold' | 'completed' | 'archived';
-  life_wheel_area?: string;
-  related_values?: string[];
+  description: string;
+  frequency?: string;
+  status: 'active' | 'completed';
   created_at: string;
   updated_at: string;
 }
 
-export const useGoals = () => {
-  const [goals, setGoals] = useState<Goal[]>([]);
+export const useActivities = (goalId?: string) => {
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isGuest } = useAuth();
   const { toast } = useToast();
 
-  const fetchGoals = async () => {
-    if (isGuest || !user) {
-      setGoals([]);
+  const fetchActivities = async () => {
+    if (isGuest || !user || !goalId) {
+      setActivities([]);
       setIsLoading(false);
       return;
     }
 
     try {
       const { data, error } = await supabase
-        .from('goals')
+        .from('activities')
         .select('*')
         .eq('user_id', user.id)
+        .eq('goal_id', goalId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGoals((data || []) as Goal[]);
+      setActivities((data || []) as Activity[]);
     } catch (error) {
-      console.error('Error fetching goals:', error);
+      console.error('Error fetching activities:', error);
       toast({
         title: "Error",
-        description: "Failed to load goals",
+        description: "Failed to load activities",
         variant: "destructive"
       });
     } finally {
@@ -52,14 +49,14 @@ export const useGoals = () => {
     }
   };
 
-  const createGoal = async (goalData: Omit<Goal, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const createActivity = async (activityData: Omit<Activity, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (isGuest || !user) return;
 
     try {
       const { data, error } = await supabase
-        .from('goals')
+        .from('activities')
         .insert({
-          ...goalData,
+          ...activityData,
           user_id: user.id,
         })
         .select()
@@ -67,76 +64,76 @@ export const useGoals = () => {
 
       if (error) throw error;
       
-      setGoals(prev => [data as Goal, ...prev]);
+      setActivities(prev => [data as Activity, ...prev]);
       toast({
         title: "Success",
-        description: "Goal created successfully"
+        description: "Activity created successfully"
       });
       return data;
     } catch (error) {
-      console.error('Error creating goal:', error);
+      console.error('Error creating activity:', error);
       toast({
         title: "Error",
-        description: "Failed to create goal",
+        description: "Failed to create activity",
         variant: "destructive"
       });
       throw error;
     }
   };
 
-  const updateGoal = async (goalId: string, updates: Partial<Goal>) => {
+  const updateActivity = async (activityId: string, updates: Partial<Activity>) => {
     if (isGuest || !user) return;
 
     try {
       const { data, error } = await supabase
-        .from('goals')
+        .from('activities')
         .update(updates)
-        .eq('id', goalId)
+        .eq('id', activityId)
         .eq('user_id', user.id)
         .select()
         .single();
 
       if (error) throw error;
       
-      setGoals(prev => prev.map(goal => goal.id === goalId ? data as Goal : goal));
+      setActivities(prev => prev.map(activity => activity.id === activityId ? data as Activity : activity));
       toast({
         title: "Success",
-        description: "Goal updated successfully"
+        description: "Activity updated successfully"
       });
       return data;
     } catch (error) {
-      console.error('Error updating goal:', error);
+      console.error('Error updating activity:', error);
       toast({
         title: "Error",
-        description: "Failed to update goal",
+        description: "Failed to update activity",
         variant: "destructive"
       });
       throw error;
     }
   };
 
-  const deleteGoal = async (goalId: string) => {
+  const deleteActivity = async (activityId: string) => {
     if (isGuest || !user) return;
 
     try {
       const { error } = await supabase
-        .from('goals')
+        .from('activities')
         .delete()
-        .eq('id', goalId)
+        .eq('id', activityId)
         .eq('user_id', user.id);
 
       if (error) throw error;
       
-      setGoals(prev => prev.filter(goal => goal.id !== goalId));
+      setActivities(prev => prev.filter(activity => activity.id !== activityId));
       toast({
         title: "Success",
-        description: "Goal deleted successfully"
+        description: "Activity deleted successfully"
       });
     } catch (error) {
-      console.error('Error deleting goal:', error);
+      console.error('Error deleting activity:', error);
       toast({
         title: "Error",
-        description: "Failed to delete goal",
+        description: "Failed to delete activity",
         variant: "destructive"
       });
       throw error;
@@ -144,15 +141,15 @@ export const useGoals = () => {
   };
 
   useEffect(() => {
-    fetchGoals();
-  }, [user, isGuest]);
+    fetchActivities();
+  }, [user, isGuest, goalId]);
 
   return {
-    goals,
+    activities,
     isLoading,
-    createGoal,
-    updateGoal,
-    deleteGoal,
-    refetch: fetchGoals
+    createActivity,
+    updateActivity,
+    deleteActivity,
+    refetch: fetchActivities
   };
 };
