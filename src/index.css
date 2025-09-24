@@ -158,18 +158,19 @@ All colors MUST be HSL for proper theming.
     transition: var(--transition-glass);
   }
 
+
   .glass-card {
-    backdrop-filter: blur(16px) saturate(180%);
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.125);
-    transition: var(--transition-smooth);
-  }
+  backdrop-filter: blur(12px) saturate(150%);
+  background: var(--gradient-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: var(--transition-smooth);
+}
 
   .glass-card:hover {
-    backdrop-filter: blur(20px) saturate(200%);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-glass);
-  }
+  /* Apenas realce sutil, sem mover o container */
+  backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: var(--shadow-soft);
+}
 
   /* Gradient backgrounds */
   .gradient-hero {
@@ -198,22 +199,22 @@ All colors MUST be HSL for proper theming.
   }
 
   /* Interactive element enhancements */
-  .chip-glass {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+   .chip-glass {
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     transition: var(--transition-smooth);
   }
-
+  
   .chip-glass:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.12);
+    /* removido transform para não deslocar modal */
   }
-
+  
   .chip-glass.selected {
-    background: hsl(var(--primary) / 0.2);
-    border-color: hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    background: hsl(var(--primary) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.25);
   }
 }
 
