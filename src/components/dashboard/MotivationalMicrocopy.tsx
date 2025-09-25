@@ -71,7 +71,7 @@ export const MotivationalMicrocopy = ({ kpiData, isLoading }: MotivationalMicroc
   const getIcon = () => {
     switch (motivationalMessage.tone) {
       case "high":
-        return <Sparkles className="text-yellow-500" size={20} />;
+        return <Sparkles className="text-warning" size={20} />;
       case "medium":
         return <Heart className="text-primary" size={20} />;
       default:

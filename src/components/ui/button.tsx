@@ -11,11 +11,11 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-card hover:shadow-glow hover:scale-105",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-card",
-        outline: "glass-card text-card-foreground hover:backdrop-filter hover:blur-md hover:scale-105",
+        outline: "glass-card text-card-foreground hover:bg-accent/50 hover:scale-105",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft",
-        ghost: "hover:bg-accent hover:text-accent-foreground hover:backdrop-filter hover:blur-sm",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-glow",
-        glass: "glass text-foreground hover:backdrop-filter hover:blur-md hover:scale-105",
+        glass: "glass text-foreground hover:bg-accent/30 hover:scale-105",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -40,6 +40,10 @@
     /* Feedback */
     --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 100%;
+    --success: 120 60% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
     /* Borders & inputs */
     --border: 210 20% 88%;
@@ -97,6 +101,10 @@
     /* Feedback */
     --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
+    --success: 120 40% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 55%;
+    --warning-foreground: 0 0% 100%;
 
     /* Borders & inputs */
     --border: 265 15% 18%;

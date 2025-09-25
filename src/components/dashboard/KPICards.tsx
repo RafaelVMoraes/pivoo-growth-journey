@@ -44,7 +44,7 @@ export const KPICards = ({ data, isLoading }: KPICardsProps) => {
       value: `${data.longestStreak}`,
       description: "consecutive days",
       icon: Flame,
-      color: "text-orange-500",
+      color: "text-secondary",
       badge: data.longestStreak >= 7 ? "On Fire!" : data.longestStreak >= 3 ? "Building" : "Start Strong",
       badgeVariant: data.longestStreak >= 7 ? "default" : "secondary"
     },
@@ -53,7 +53,7 @@ export const KPICards = ({ data, isLoading }: KPICardsProps) => {
       value: data.strongestLifeArea,
       description: "highest life score",
       icon: TrendingUp,
-      color: "text-green-500",
+      color: "text-success",
       badge: "Strong",
       badgeVariant: "default"
     },
@@ -62,7 +62,7 @@ export const KPICards = ({ data, isLoading }: KPICardsProps) => {
       value: data.weakestLifeArea,
       description: "needs attention",
       icon: TrendingDown,
-      color: "text-amber-500",
+      color: "text-warning",
       badge: "Opportunity",
       badgeVariant: "secondary"
     }

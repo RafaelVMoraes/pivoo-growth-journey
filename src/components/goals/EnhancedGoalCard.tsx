@@ -43,13 +43,13 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   const getStatusIcon = () => {
     switch (goal.status) {
       case 'completed':
-        return <CheckCircle2 size={20} className="text-green-500" />;
+        return <CheckCircle2 size={20} className="text-success" />;
       case 'on_hold':
-        return <Pause size={20} className="text-yellow-500" />;
+        return <Pause size={20} className="text-warning" />;
       case 'in_progress':
-        return <Play size={20} className="text-blue-500" />;
+        return <Play size={20} className="text-primary" />;
       case 'archived':
-        return <Target size={20} className="text-gray-500" />;
+        return <Target size={20} className="text-muted-foreground" />;
       default:
         return <Target size={20} className="text-primary" />;
     }
@@ -58,13 +58,13 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   const getStatusColor = () => {
     switch (goal.status) {
       case 'completed':
-        return 'bg-green-500/20 text-green-300';
+        return 'bg-success/20 text-success';
       case 'on_hold':
-        return 'bg-yellow-500/20 text-yellow-300';
+        return 'bg-warning/20 text-warning';
       case 'in_progress':
-        return 'bg-blue-500/20 text-blue-300';
+        return 'bg-primary/20 text-primary';
       case 'archived':
-        return 'bg-gray-500/20 text-gray-300';
+        return 'bg-muted/20 text-muted-foreground';
       default:
         return 'bg-primary/20 text-primary';
     }
@@ -79,94 +79,96 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   };
 
   return (
-    <Card className="glass-card border-glass hover:scale-[1.02] transition-all duration-300">
+    <Card className="glass-card hover:scale-[1.01] transition-all duration-200 overflow-hidden">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-        <div className="p-4">
+        <div className="p-5">
           {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              {getTypeIcon()}
-              <h3 className="font-semibold text-foreground truncate">{goal.title}</h3>
-              <span className="text-xs">{getTypeEmoji()}</span>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-2 mt-0.5">
+                {getTypeIcon()}
+                <span className="text-lg">{getTypeEmoji()}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-lg text-foreground leading-tight mb-1">{goal.title}</h3>
+                {goal.description && (
+                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                    {goal.description}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2 ml-2">
-              <Badge className={getStatusColor()}>
+            <div className="flex items-center gap-2 ml-3">
+              <Badge className={`${getStatusColor()} font-medium`}>
                 {goal.status.replace('_', ' ')}
               </Badge>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-1">
+                <Button variant="ghost" size="sm" className="p-2 hover:bg-accent/50">
                   {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </Button>
               </CollapsibleTrigger>
             </div>
           </div>
 
-          {/* Goal info */}
-          {goal.description && (
-            <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-              {goal.description}
-            </p>
-          )}
-
-          {/* Metadata */}
-          <div className="space-y-2 mb-4">
-            {goal.category && (
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs">
-                  {goal.category}
-                </Badge>
-              </div>
-            )}
-
-            {goal.target_date && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar size={14} />
-                <span>Target: {formatDate(goal.target_date)}</span>
-              </div>
-            )}
-
+          {/* Metadata - Better organized */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             {goal.life_wheel_area && (
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  📊 {goal.life_wheel_area}
-                </Badge>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <div className="w-2 h-2 rounded-full bg-primary"></div>
+                <span>{goal.life_wheel_area}</span>
               </div>
             )}
+            
+            {goal.target_date && (
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Calendar size={14} />
+                <span>{formatDate(goal.target_date)}</span>
+              </div>
+            )}
+            
+            {goal.category && (
+              <Badge variant="outline" className="text-xs font-medium">
+                {goal.category}
+              </Badge>
+            )}
+          </div>
 
-            {goal.related_values && goal.related_values.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+          {/* Values - Only show if present */}
+          {goal.related_values && goal.related_values.length > 0 && (
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1.5">
                 {goal.related_values.map(value => (
-                  <Badge key={value} variant="outline" className="text-xs">
+                  <Badge key={value} variant="secondary" className="text-xs px-2 py-1">
                     ✨ {value}
                   </Badge>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Quick actions */}
+          {/* Actions */}
           <div className="flex gap-2">
             <Button
               size="sm"
               variant={goal.status === 'completed' ? 'outline' : 'default'}
               onClick={handleStatusChange}
-              className="flex-1"
+              className="flex-1 h-9"
             >
               {goal.status === 'completed' ? (
                 <>
-                  <Play size={14} className="mr-1" />
+                  <Play size={14} className="mr-1.5" />
                   Reactivate
                 </>
               ) : (
                 <>
-                  <CheckCircle2 size={14} className="mr-1" />
-                  Complete
+                  <CheckCircle2 size={14} className="mr-1.5" />
+                  Mark Complete
                 </>
               )}
             </Button>
             
             <ReflectionLayer goalTitle={goal.title}>
-              <Button size="sm" variant="outline" className="px-3">
+              <Button size="sm" variant="outline" className="px-3 h-9">
                 <Lightbulb size={14} />
               </Button>
             </ReflectionLayer>
@@ -175,11 +177,8 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
 
         {/* Expanded content */}
         <CollapsibleContent>
-          <div className="border-t p-4 space-y-6">
-            {/* Activities section */}
+          <div className="border-t bg-accent/10 p-5 space-y-6">
             <ActivityList goalId={goal.id} />
-            
-            {/* Check-in section */}
             <CheckInForm goalId={goal.id} />
           </div>
         </CollapsibleContent>

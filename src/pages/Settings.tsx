@@ -122,15 +122,15 @@ export const Settings = () => {
       </Card>
 
       {isGuest && (
-        <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
+        <Card className="glass-card bg-warning/10 border-warning/20">
           <CardContent className="pt-6">
             <div className="flex items-start space-x-3">
-              <AlertTriangle size={20} className="text-orange-600 mt-0.5" />
+              <AlertTriangle size={20} className="text-warning mt-0.5" />
               <div className="space-y-1">
-                <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                <p className="text-sm font-medium text-foreground">
                   Limited Guest Access
                 </p>
-                <p className="text-xs text-orange-700 dark:text-orange-300">
+                <p className="text-xs text-muted-foreground">
                   Some settings require an account. Create one to unlock full functionality.
                 </p>
               </div>

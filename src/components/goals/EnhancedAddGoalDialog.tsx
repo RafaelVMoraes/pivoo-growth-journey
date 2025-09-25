@@ -11,6 +11,7 @@ import { Plus, X, Target, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-re
 import { useGoals } from '@/hooks/useGoals';
 import { useActivities } from '@/hooks/useActivities';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
+import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedAddGoalDialogProps {
   children: React.ReactNode;
@@ -41,6 +42,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   const { createGoal } = useGoals();
   const { createActivity } = useActivities();
   const { lifeWheelData, valuesData } = useSelfDiscovery();
+  const { toast } = useToast();
 
   const lifeWheelAreas = lifeWheelData.map(item => item.area_name);
   const availableValues = valuesData.filter(value => value.selected).map(value => value.value_name);
@@ -64,42 +66,53 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
 
     setIsSubmitting(true);
     try {
-      const goal = await createGoal({
+      const goalData = {
         title: title.trim(),
         description: description.trim() || undefined,
-        category: category || undefined,
-        target_date: targetDate || undefined,
+        category: category.trim() || undefined,
         type: goalType,
         status,
+        target_date: targetDate || undefined,
         life_wheel_area: selectedArea,
         related_values: selectedValues.length > 0 ? selectedValues : undefined,
-      });
+      };
 
-      if (goal && activities.some(a => a.description.trim())) {
-        // Create activities for the goal
-        for (const activity of activities) {
-          if (activity.description.trim()) {
-            await createActivity({
-              goal_id: goal.id,
-              description: activity.description.trim(),
-              frequency: activity.frequency || undefined,
-              status: 'active'
-            });
-          }
+      const newGoal = await createGoal(goalData);
+      
+      // Create activities if any are provided
+      if (newGoal) {
+        const validActivities = activities.filter(activity => activity.description.trim());
+        for (const activity of validActivities) {
+          await createActivity({
+            goal_id: newGoal.id,
+            description: activity.description.trim(),
+            frequency: activity.frequency.trim() || undefined,
+            status: 'active',
+          });
         }
       }
+
+      toast({
+        title: "Goal created!",
+        description: `"${title}" has been added to your goals.`,
+      });
 
       resetForm();
       setIsOpen(false);
     } catch (error) {
-      // Error handled by hooks
+      console.error('Error creating goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create goal. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const toggleValue = (value: string) => {
-    setSelectedValues(prev =>
+    setSelectedValues(prev => 
       prev.includes(value)
         ? prev.filter(v => v !== value)
         : [...prev, value]
@@ -107,11 +120,13 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   };
 
   const addActivity = () => {
-    setActivities(prev => [...prev, { description: '', frequency: '' }]);
+    setActivities([...activities, { description: '', frequency: '' }]);
   };
 
   const removeActivity = (index: number) => {
-    setActivities(prev => prev.filter((_, i) => i !== index));
+    if (activities.length > 1) {
+      setActivities(activities.filter((_, i) => i !== index));
+    }
   };
 
   const updateActivity = (index: number, field: keyof ActivityInput, value: string) => {
@@ -120,46 +135,111 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
     ));
   };
 
-  const canProceedFromStep1 = selectedArea;
-  const canProceedFromStep2 = goalType;
-  const canProceedFromStep3 = title.trim();
+  const canProceedFromStep1 = title.trim() && selectedArea && goalType;
   const canSubmit = title.trim() && selectedArea;
 
   const renderStep1 = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Select Life Area & Values</h3>
-        <p className="text-sm text-muted-foreground">Choose which area of life this goal focuses on</p>
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-semibold text-foreground">Create Your Goal</h3>
+        <p className="text-sm text-muted-foreground">Define what you want to achieve and how</p>
       </div>
 
-      <div className="space-y-2">
-        <Label>Life Area *</Label>
-        <Select value={selectedArea} onValueChange={setSelectedArea}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a life area" />
-          </SelectTrigger>
-          <SelectContent>
-            {lifeWheelAreas.map(area => (
-              <SelectItem key={area} value={area}>{area}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Goal Type Selection */}
+      <div className="space-y-3">
+        <Label className="text-base font-medium">Goal Type *</Label>
+        <RadioGroup value={goalType} onValueChange={(value: 'outcome' | 'process') => setGoalType(value)}>
+          <div className="flex items-center space-x-3 p-4 border rounded-xl hover:bg-accent/30 cursor-pointer transition-colors">
+            <RadioGroupItem value="outcome" id="outcome" />
+            <div className="flex-1">
+              <Label htmlFor="outcome" className="flex items-center gap-3 cursor-pointer">
+                <Target size={20} className="text-primary" />
+                <div>
+                  <div className="font-medium">Outcome Goal 🎯</div>
+                  <div className="text-sm text-muted-foreground">A specific result to achieve</div>
+                </div>
+              </Label>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3 p-4 border rounded-xl hover:bg-accent/30 cursor-pointer transition-colors">
+            <RadioGroupItem value="process" id="process" />
+            <div className="flex-1">
+              <Label htmlFor="process" className="flex items-center gap-3 cursor-pointer">
+                <RotateCcw size={20} className="text-primary" />
+                <div>
+                  <div className="font-medium">Process Goal 🔄</div>
+                  <div className="text-sm text-muted-foreground">A habit or recurring action</div>
+                </div>
+              </Label>
+            </div>
+          </div>
+        </RadioGroup>
       </div>
 
-      {availableValues.length > 0 && (
+      {/* Goal Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="title" className="text-base font-medium">Goal Title *</Label>
+          <Input
+            id="title"
+            placeholder={goalType === 'outcome' ? 'e.g., Reach 75kg by December' : 'e.g., Exercise 3 times per week'}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
         <div className="space-y-2">
-          <Label>Related Values (Optional)</Label>
+          <Label>Life Area *</Label>
+          <Select value={selectedArea} onValueChange={setSelectedArea}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select area" />
+            </SelectTrigger>
+            <SelectContent>
+              {lifeWheelAreas.map(area => (
+                <SelectItem key={area} value={area}>{area}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="target-date">Target Date</Label>
+          <Input
+            id="target-date"
+            type="date"
+            value={targetDate}
+            onChange={(e) => setTargetDate(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="description">Description (Optional)</Label>
+          <Textarea
+            id="description"
+            placeholder="Why is this goal important to you?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+        </div>
+      </div>
+
+      {/* Values Connection */}
+      {availableValues.length > 0 && (
+        <div className="space-y-3">
+          <Label className="text-base font-medium">Connect to Your Values (Optional)</Label>
           <div className="flex flex-wrap gap-2">
             {availableValues.map(value => (
               <Badge
                 key={value}
                 variant={selectedValues.includes(value) ? "default" : "outline"}
-                className="cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer hover:scale-105 transition-transform px-3 py-1"
                 onClick={() => toggleValue(value)}
               >
-                {value}
+                ✨ {value}
                 {selectedValues.includes(value) && (
-                  <X size={12} className="ml-1" />
+                  <X size={12} className="ml-2" />
                 )}
               </Badge>
             ))}
@@ -170,137 +250,29 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   );
 
   const renderStep2 = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Goal Type</h3>
-        <p className="text-sm text-muted-foreground">Choose how you want to structure this goal</p>
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-semibold text-foreground">Add Activities</h3>
+        <p className="text-sm text-muted-foreground">Define specific actions that will help you achieve this goal</p>
       </div>
 
-      <RadioGroup value={goalType} onValueChange={(value: 'outcome' | 'process') => setGoalType(value)}>
-        <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent cursor-pointer">
-          <RadioGroupItem value="outcome" id="outcome" />
-          <div className="flex-1">
-            <Label htmlFor="outcome" className="flex items-center gap-2 cursor-pointer">
-              <Target size={20} className="text-primary" />
-              <div>
-                <div className="font-medium">Outcome Goal 🎯</div>
-                <div className="text-sm text-muted-foreground">Result to achieve (e.g., "Reach 75kg by December")</div>
-              </div>
-            </Label>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent cursor-pointer">
-          <RadioGroupItem value="process" id="process" />
-          <div className="flex-1">
-            <Label htmlFor="process" className="flex items-center gap-2 cursor-pointer">
-              <RotateCcw size={20} className="text-primary" />
-              <div>
-                <div className="font-medium">Process Goal 🔄</div>
-                <div className="text-sm text-muted-foreground">Recurring effort (e.g., "Run 3 times per week")</div>
-              </div>
-            </Label>
-          </div>
-        </div>
-      </RadioGroup>
-    </div>
-  );
-
-  const renderStep3 = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Goal Details</h3>
-        <p className="text-sm text-muted-foreground">Define your goal specifics</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="title">Goal Title *</Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter your goal"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description (Optional)</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe your goal in detail"
-          rows={3}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Personal Development">Personal Development</SelectItem>
-              <SelectItem value="Health & Fitness">Health & Fitness</SelectItem>
-              <SelectItem value="Career">Career</SelectItem>
-              <SelectItem value="Relationships">Relationships</SelectItem>
-              <SelectItem value="Finance">Finance</SelectItem>
-              <SelectItem value="Education">Education</SelectItem>
-              <SelectItem value="Travel">Travel</SelectItem>
-              <SelectItem value="Hobbies">Hobbies</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="targetDate">Deadline (Optional)</Label>
-          <Input
-            id="targetDate"
-            type="date"
-            value={targetDate}
-            onChange={(e) => setTargetDate(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <Select value={status} onValueChange={(value: any) => setStatus(value)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="on_hold">On Hold</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
-
-  const renderStep4 = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Activities & Habits</h3>
-        <p className="text-sm text-muted-foreground">Define concrete actions to achieve your goal</p>
-      </div>
-
-      <div className="space-y-3">
+      <div className="space-y-4">
         {activities.map((activity, index) => (
-          <div key={index} className="flex gap-2 items-start">
+          <div key={index} className="flex gap-3 items-end">
             <div className="flex-1 space-y-2">
+              <Label htmlFor={`activity-${index}`}>Activity {index + 1}</Label>
               <Input
-                placeholder="Activity description"
+                id={`activity-${index}`}
+                placeholder="e.g., Go to the gym, Read for 30 minutes"
                 value={activity.description}
                 onChange={(e) => updateActivity(index, 'description', e.target.value)}
               />
+            </div>
+            <div className="w-32 space-y-2">
+              <Label htmlFor={`frequency-${index}`}>Frequency</Label>
               <Input
-                placeholder="Frequency (e.g., 3x/week, daily)"
+                id={`frequency-${index}`}
+                placeholder="e.g., 3x/week"
                 value={activity.frequency}
                 onChange={(e) => updateActivity(index, 'frequency', e.target.value)}
               />
@@ -309,8 +281,9 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => removeActivity(index)}
+                className="mb-0"
               >
                 <X size={16} />
               </Button>
@@ -322,98 +295,58 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
           type="button"
           variant="outline"
           onClick={addActivity}
-          className="w-full"
+          className="w-full gap-2"
         >
-          <Plus size={16} className="mr-1" />
-          Add Activity
+          <Plus size={16} />
+          Add Another Activity
         </Button>
       </div>
     </div>
   );
 
-  const renderStep5 = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Progress Tracking</h3>
-        <p className="text-sm text-muted-foreground">How will you measure progress?</p>
-      </div>
-
-      <RadioGroup value={trackingType} onValueChange={(value: any) => setTrackingType(value)}>
-        <div className="flex items-center space-x-2 p-3 border rounded-lg">
-          <RadioGroupItem value="checkbox" id="checkbox" />
-          <Label htmlFor="checkbox" className="flex-1 cursor-pointer">
-            <div className="font-medium">Checkbox ✓</div>
-            <div className="text-sm text-muted-foreground">Simple done/not done tracking</div>
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2 p-3 border rounded-lg">
-          <RadioGroupItem value="numeric" id="numeric" />
-          <Label htmlFor="numeric" className="flex-1 cursor-pointer">
-            <div className="font-medium">Numeric 📊</div>
-            <div className="text-sm text-muted-foreground">Track quantities (kg, hours, reps, etc.)</div>
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2 p-3 border rounded-lg">
-          <RadioGroupItem value="percentage" id="percentage" />
-          <Label htmlFor="percentage" className="flex-1 cursor-pointer">
-            <div className="font-medium">Percentage %</div>
-            <div className="text-sm text-muted-foreground">Track completion percentage</div>
-          </Label>
-        </div>
-      </RadioGroup>
-    </div>
-  );
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild onClick={() => setIsOpen(true)}>
         {children}
       </DialogTrigger>
-      <DialogContent className="glass-card border-glass max-w-lg mx-auto">
+      
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground flex items-center gap-2">
-            Add New Goal
-            <span className="text-sm text-muted-foreground">Step {step} of 5</span>
+          <DialogTitle className="flex items-center gap-2">
+            <Target className="text-primary" />
+            Add New Goal - Step {step} of 2
           </DialogTitle>
         </DialogHeader>
-        
-        <div className="min-h-[400px]">
+
+        <div className="py-4">
           {step === 1 && renderStep1()}
           {step === 2 && renderStep2()}
-          {step === 3 && renderStep3()}
-          {step === 4 && renderStep4()}
-          {step === 5 && renderStep5()}
         </div>
 
         <div className="flex justify-between pt-4">
           <Button
-            type="button"
             variant="outline"
             onClick={() => step > 1 ? setStep(step - 1) : setIsOpen(false)}
             disabled={isSubmitting}
           >
-            {step > 1 ? <ChevronLeft size={16} className="mr-1" /> : null}
-            {step > 1 ? 'Back' : 'Cancel'}
+            {step === 1 ? 'Cancel' : (
+              <>
+                <ChevronLeft size={16} />
+                Back
+              </>
+            )}
           </Button>
-          
-          {step < 5 ? (
+
+          {step < 2 ? (
             <Button
-              type="button"
               onClick={() => setStep(step + 1)}
-              disabled={
-                (step === 1 && !canProceedFromStep1) ||
-                (step === 2 && !canProceedFromStep2) ||
-                (step === 3 && !canProceedFromStep3)
-              }
+              disabled={!canProceedFromStep1 || isSubmitting}
             >
-              Next
-              <ChevronRight size={16} className="ml-1" />
+              Next: Add Activities
+              <ChevronRight size={16} />
             </Button>
           ) : (
             <Button
-              type="button"
               onClick={handleSubmit}
               disabled={!canSubmit || isSubmitting}
             >
