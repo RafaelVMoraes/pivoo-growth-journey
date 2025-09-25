@@ -2,9 +2,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Target, TrendingUp, Heart } from 'lucide-react';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { WeeklyHabitsChart } from '@/components/dashboard/WeeklyHabitsChart';
+import { MonthlyProgressChart } from '@/components/dashboard/MonthlyProgressChart';
+import { KPICards } from '@/components/dashboard/KPICards';
+import { MotivationalMicrocopy } from '@/components/dashboard/MotivationalMicrocopy';
 
 export const Dashboard = () => {
   const { user, isGuest } = useAuth();
+  const { 
+    isLoading, 
+    weeklyHabitsData, 
+    monthlyProgressData, 
+    kpiData 
+  } = useDashboardStats();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -21,8 +32,20 @@ export const Dashboard = () => {
         </p>
       </div>
 
+      {/* Motivational Message */}
+      <MotivationalMicrocopy kpiData={kpiData} isLoading={isLoading} />
+
+      {/* KPI Cards */}
+      <KPICards data={kpiData} isLoading={isLoading} />
+
+      {/* Charts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <WeeklyHabitsChart data={weeklyHabitsData} isLoading={isLoading} />
+        <MonthlyProgressChart data={monthlyProgressData} isLoading={isLoading} />
+      </div>
+
       {/* Daily Check-in Card */}
-      <Card className="gradient-card shadow-card">
+      <Card className="glass-card shadow-card">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -42,46 +65,8 @@ export const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Goals Overview */}
-      <Card className="gradient-card shadow-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Target size={20} className="text-primary" />
-            Goals Overview
-          </CardTitle>
-          <CardDescription>Your progress at a glance</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
-            <Target size={32} className="text-muted-foreground mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Your active goals and progress will be displayed here
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Weekly Insights */}
-      <Card className="gradient-card shadow-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp size={20} className="text-primary" />
-            Weekly Insights
-          </CardTitle>
-          <CardDescription>Patterns and growth trends</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
-            <TrendingUp size={32} className="text-muted-foreground mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Analytics and insights about your journey will appear here
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Mindfulness Corner */}
-      <Card className="gradient-card shadow-card">
+      <Card className="glass-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Heart size={20} className="text-primary" />
@@ -92,7 +77,7 @@ export const Dashboard = () => {
         <CardContent>
           <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
             <Heart size={32} className="text-muted-foreground mx-auto" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foregroround">
               Breathing exercises and mindful moments will be here
             </p>
           </div>
