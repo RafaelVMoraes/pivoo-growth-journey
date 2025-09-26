@@ -151,6 +151,42 @@ export type Database = {
         }
         Relationships: []
       }
+      history: {
+        Row: {
+          achievements: string[] | null
+          completed_goals_count: number | null
+          created_at: string
+          id: string
+          summary: string | null
+          total_goals_count: number | null
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          achievements?: string[] | null
+          completed_goals_count?: number | null
+          created_at?: string
+          id?: string
+          summary?: string | null
+          total_goals_count?: number | null
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          achievements?: string[] | null
+          completed_goals_count?: number | null
+          created_at?: string
+          id?: string
+          summary?: string | null
+          total_goals_count?: number | null
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       life_wheel: {
         Row: {
           area_name: string
@@ -189,6 +225,7 @@ export type Database = {
           id: string
           language: string | null
           name: string | null
+          notifications_enabled: boolean | null
           updated_at: string
           user_id: string
         }
@@ -199,6 +236,7 @@ export type Database = {
           id?: string
           language?: string | null
           name?: string | null
+          notifications_enabled?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -209,6 +247,7 @@ export type Database = {
           id?: string
           language?: string | null
           name?: string | null
+          notifications_enabled?: boolean | null
           updated_at?: string
           user_id?: string
         }

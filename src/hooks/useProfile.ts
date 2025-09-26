@@ -10,6 +10,7 @@ interface Profile {
   email: string | null;
   avatar_url: string | null;
   language: string;
+  notifications_enabled: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -1,7 +1,12 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Settings as SettingsIcon, 
   Bell, 
@@ -9,18 +14,49 @@ import {
   Moon, 
   Download,
   Trash,
-  AlertTriangle
+  AlertTriangle,
+  LogOut
 } from 'lucide-react';
 
 export const Settings = () => {
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, signOut } = useAuth();
+  const { profile, updateProfile } = useProfile();
+  const { t } = useTranslation();
+  const { toast } = useToast();
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (!profile) return;
+    
+    try {
+      await updateProfile({ notifications_enabled: enabled });
+    } catch (error) {
+      console.error('Error updating notifications:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: 'Logged out successfully',
+        description: 'You have been signed out of your account.',
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to log out. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Customize your Pivoo experience</p>
+        <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
+        <p className="text-muted-foreground">{t('settings.subtitle')}</p>
       </div>
 
       {/* Notifications */}
@@ -28,18 +64,31 @@ export const Settings = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell size={18} className="text-primary" />
-            Notifications
+            {t('settings.notifications.title')}
           </CardTitle>
           <CardDescription>
-            Manage how you receive updates and reminders
+            {t('settings.notifications.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Notification preferences will be available soon
-            </p>
-          </div>
+          {!isGuest && profile ? (
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="font-medium">Push Notifications</p>
+                <p className="text-sm text-muted-foreground">Receive updates and reminders</p>
+              </div>
+              <Switch
+                checked={profile.notifications_enabled ?? true}
+                onCheckedChange={handleNotificationToggle}
+              />
+            </div>
+          ) : (
+            <div className="bg-muted/50 rounded-lg p-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Sign in to manage notification preferences
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -68,17 +117,36 @@ export const Settings = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Shield size={18} className="text-primary" />
-            Privacy & Security
+            {t('settings.privacy.title')}
           </CardTitle>
           <CardDescription>
-            Control your data and privacy settings
+            {t('settings.privacy.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t('privacy.disclaimer')}
+            </p>
+          </div>
+          
           <div className="space-y-3">
+            {!isGuest && (
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium">{t('settings.logout')}</p>
+                  <p className="text-xs text-muted-foreground">Sign out of your account</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut size={14} className="mr-2" />
+                  {t('settings.logout')}
+                </Button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div>
-                <p className="text-sm font-medium">Data Export</p>
+                <p className="text-sm font-medium">{t('settings.export')}</p>
                 <p className="text-xs text-muted-foreground">Download your personal data</p>
               </div>
               <Button variant="outline" size="sm" disabled>
@@ -87,15 +155,33 @@ export const Settings = () => {
               </Button>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
               <div>
-                <p className="text-sm font-medium">Account Deletion</p>
+                <p className="text-sm font-medium text-destructive">{t('settings.delete')}</p>
                 <p className="text-xs text-muted-foreground">Permanently delete your account</p>
               </div>
-              <Button variant="outline" size="sm" disabled className="text-destructive hover:text-destructive">
-                <Trash size={14} className="mr-2" />
-                Delete
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={isGuest}>
+                    <Trash size={14} className="mr-2" />
+                    {t('settings.delete')}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-destructive hover:bg-destructive/90">
+                      Delete Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </CardContent>

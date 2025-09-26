@@ -1,24 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, Camera, Save, Mail, Globe } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { User, Camera, Save, Mail, Globe, Bell, History, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { HistoryArchive } from '@/components/profile/HistoryArchive';
 
 export const Profile = () => {
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, signOut } = useAuth();
   const { profile, loading, updateProfile } = useProfile();
+  const { t } = useTranslation();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     name: '',
     language: 'en',
+    notifications_enabled: true,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,12 +34,17 @@ export const Profile = () => {
       setFormData({
         name: profile.name || '',
         language: profile.language || 'en',
+        notifications_enabled: profile.notifications_enabled ?? true,
       });
     }
   }, [profile]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'notifications_enabled') {
+      setFormData(prev => ({ ...prev, [field]: value === 'true' }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSave = async () => {
@@ -55,18 +66,36 @@ export const Profile = () => {
       setFormData({
         name: profile.name || '',
         language: profile.language || 'en',
+        notifications_enabled: profile.notifications_enabled ?? true,
       });
     }
     setIsEditing(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: 'Logged out successfully',
+        description: 'You have been signed out of your account.',
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to log out. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getLanguageLabel = (lang: string) => {
     const languages = {
-      en: 'English',
-      pt: 'Português',
-      fr: 'Français',
+      en: t('language.en'),
+      pt: t('language.pt'),
+      fr: t('language.fr'),
     };
-    return languages[lang as keyof typeof languages] || 'English';
+    return languages[lang as keyof typeof languages] || t('language.en');
   };
 
   const getInitials = (name: string) => {
@@ -103,8 +132,8 @@ export const Profile = () => {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Profile</h1>
-          <p className="text-muted-foreground">Loading your profile...</p>
+          <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -115,15 +144,33 @@ export const Profile = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Profile</h1>
-          <p className="text-muted-foreground">Manage your account settings</p>
+          <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
+          <p className="text-muted-foreground">{t('profile.subtitle')}</p>
         </div>
         {!isEditing && (
           <Button onClick={() => setIsEditing(true)} variant="secondary">
-            Edit Profile
+            {t('profile.edit')}
           </Button>
         )}
       </div>
+
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="profile" className="flex items-center gap-2">
+            <User size={16} />
+            {t('profile.title')}
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History size={16} />
+            {t('nav.history')}
+          </TabsTrigger>
+          <TabsTrigger value="privacy" className="flex items-center gap-2">
+            <Shield size={16} />
+            Privacy
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-6">
 
       {/* Profile Card */}
       <Card className="gradient-card shadow-card">
@@ -169,7 +216,7 @@ export const Profile = () => {
             
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Display Name</Label>
+                <Label htmlFor="name">{t('profile.name')}</Label>
                 {isEditing ? (
                   <Input
                     id="name"
@@ -185,7 +232,7 @@ export const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t('profile.email')}</Label>
                 <div className="flex items-center gap-2">
                   <p className="text-sm py-2 px-3 bg-muted/50 rounded-md flex-1">
                     {profile?.email || user?.email}
@@ -206,7 +253,7 @@ export const Profile = () => {
             </h3>
             
             <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
+              <Label htmlFor="language">{t('profile.language')}</Label>
               {isEditing ? (
                 <Select
                   value={formData.language}
@@ -216,9 +263,9 @@ export const Profile = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="pt">Português</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="en">{t('language.en')}</SelectItem>
+                    <SelectItem value="pt">{t('language.pt')}</SelectItem>
+                    <SelectItem value="fr">{t('language.fr')}</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
@@ -226,6 +273,27 @@ export const Profile = () => {
                   {getLanguageLabel(profile?.language || 'en')}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notifications">{t('profile.notifications')}</Label>
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Enable notifications</p>
+                  <p className="text-xs text-muted-foreground">Receive updates and reminders</p>
+                </div>
+                {isEditing ? (
+                  <Switch
+                    id="notifications"
+                    checked={formData.notifications_enabled}
+                    onCheckedChange={(checked) => handleInputChange('notifications_enabled', String(checked))}
+                  />
+                ) : (
+                  <Badge variant={profile?.notifications_enabled ? "default" : "secondary"}>
+                    {profile?.notifications_enabled ? "On" : "Off"}
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 
@@ -238,14 +306,14 @@ export const Profile = () => {
                 className="flex-1"
               >
                 <Save size={16} className="mr-2" />
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? t('profile.saving') : t('profile.save')}
               </Button>
               <Button 
                 variant="secondary" 
                 onClick={handleCancel}
                 disabled={isSaving}
               >
-                Cancel
+                {t('profile.cancel')}
               </Button>
             </div>
           )}
@@ -261,6 +329,60 @@ export const Profile = () => {
           </CardDescription>
         </CardHeader>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <HistoryArchive />
+        </TabsContent>
+
+        <TabsContent value="privacy" className="space-y-6">
+          {/* Privacy Disclaimer */}
+          <Card className="gradient-card shadow-soft">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Shield size={20} className="text-primary mt-1" />
+                <div className="space-y-2">
+                  <h3 className="font-medium">Privacy & Data Security</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t('privacy.disclaimer')}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          <Card className="gradient-card shadow-card">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Account Actions</CardTitle>
+              <CardDescription>
+                Manage your account and data
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium">Sign Out</p>
+                  <p className="text-sm text-muted-foreground">Sign out of your account</p>
+                </div>
+                <Button variant="outline" onClick={handleLogout}>
+                  {t('settings.logout')}
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+                <div>
+                  <p className="font-medium text-destructive">Delete Account</p>
+                  <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                </div>
+                <Button variant="destructive" disabled>
+                  {t('settings.delete')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
