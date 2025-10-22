@@ -284,6 +284,16 @@ const translations: Translations = {
   'common.loggedOutDesc': { en: 'You have been signed out of your account.', pt: 'Você foi deslogado da sua conta.', fr: 'Vous avez été déconnecté de votre compte.' },
   'common.error': { en: 'Error', pt: 'Erro', fr: 'Erreur' },
   'common.failedLogout': { en: 'Failed to log out. Please try again.', pt: 'Falha ao sair. Por favor, tente novamente.', fr: 'Échec de la déconnexion. Veuillez réessayer.' },
+  'common.you': { en: 'You', pt: 'Você', fr: 'Vous' },
+
+  // Chatbot
+  'chatbot.title': { en: 'AI Assistant', pt: 'Assistente IA', fr: 'Assistant IA' },
+  'chatbot.assistant': { en: 'Assistant', pt: 'Assistente', fr: 'Assistant' },
+  'chatbot.openChat': { en: 'Chat', pt: 'Conversar', fr: 'Discuter' },
+  'chatbot.clearChat': { en: 'Clear chat', pt: 'Limpar conversa', fr: 'Effacer la conversation' },
+  'chatbot.closeChat': { en: 'Close chat', pt: 'Fechar conversa', fr: 'Fermer la conversation' },
+  'chatbot.welcomeMessage': { en: 'Hi! I\'m your AI assistant. How can I help you today?', pt: 'Oi! Sou seu assistente IA. Como posso ajudá-lo hoje?', fr: 'Salut! Je suis votre assistant IA. Comment puis-je vous aider aujourd\'hui?' },
+  'chatbot.typeMessage': { en: 'Type your message...', pt: 'Digite sua mensagem...', fr: 'Tapez votre message...' },
 
   // Dashboard KPI Cards
   'kpi.goalsCompleted': { en: 'Goals Completed', pt: 'Objetivos Concluídos', fr: 'Objectifs terminés' },

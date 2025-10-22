@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { BottomNavigation } from './BottomNavigation';
 import { DrawerMenu } from './DrawerMenu';
+import { Chatbot } from '@/components/chatbot';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
@@ -51,6 +52,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         open={drawerOpen} 
         onClose={() => setDrawerOpen(false)} 
       />
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 };
