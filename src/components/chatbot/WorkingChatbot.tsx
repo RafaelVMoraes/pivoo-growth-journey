@@ -2,25 +2,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useChatbot, ChatMessage } from '@/hooks/useChatbot';
+import { useChatbot } from '@/hooks/useChatbot';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Send, Bot, User, Trash2, Minimize2, Maximize2 } from 'lucide-react';
+import { Send, Bot, User, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ChatbotProps {
+interface WorkingChatbotProps {
   className?: string;
 }
 
-export const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
+export const WorkingChatbot: React.FC<WorkingChatbotProps> = ({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const { messages, isLoading, sendMessage, clearChat } = useChatbot();
   const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Debug: Log when component renders
-  console.log('Chatbot component rendered, isOpen:', isOpen);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +53,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => (
+  const MessageBubble: React.FC<{ message: any }> = ({ message }) => (
     <div className={cn(
       'flex gap-3 p-4 rounded-xl transition-all duration-300',
       message.role === 'user' 
@@ -89,9 +86,12 @@ export const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
 
   if (!isOpen) {
     return (
-      <div className={cn('fixed bottom-6 right-6 z-50', className)}>
+      <div className={cn('fixed bottom-6 right-6 z-[9999]', className)}>
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            console.log('WorkingChatbot button clicked');
+            setIsOpen(true);
+          }}
           size="lg"
           className="rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-primary text-primary-foreground"
           title={t('chatbot.openChat') || 'Open AI Chat'}
@@ -103,7 +103,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
   }
 
   return (
-    <div className={cn('fixed bottom-6 right-6 z-50 w-96 h-[600px]', className)}>
+    <div className={cn('fixed bottom-6 right-6 z-[9999] w-96 h-[600px]', className)}>
       <Card className="h-full flex flex-col shadow-2xl border-0">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 border-b">
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
               className="h-8 w-8"
               title={t('chatbot.closeChat') || 'Close chat'}
             >
-              <Minimize2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>

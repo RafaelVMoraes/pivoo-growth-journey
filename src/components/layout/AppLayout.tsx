@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { BottomNavigation } from './BottomNavigation';
 import { DrawerMenu } from './DrawerMenu';
-import { Chatbot } from '@/components/chatbot';
+import { WorkingChatbot } from '@/components/chatbot/WorkingChatbot';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { user, isGuest } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
 
   // Only show layout for authenticated users or guests
   if (!user && !isGuest) {
@@ -54,7 +55,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       />
 
       {/* Chatbot */}
-      <Chatbot />
+      <WorkingChatbot />
     </div>
   );
 };
