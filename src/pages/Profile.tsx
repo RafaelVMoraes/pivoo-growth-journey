@@ -76,14 +76,14 @@ export const Profile = () => {
     try {
       await signOut();
       toast({
-        title: 'Logged out successfully',
-        description: 'You have been signed out of your account.',
+        title: t('common.loggedOutSuccessfully'),
+        description: t('common.loggedOutDesc'),
       });
     } catch (error) {
       console.error('Error logging out:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to log out. Please try again.',
+        title: t('common.error'),
+        description: t('common.failedLogout'),
         variant: 'destructive',
       });
     }
@@ -114,13 +114,13 @@ export const Profile = () => {
           <CardContent className="space-y-4">
             <User size={48} className="text-muted-foreground mx-auto" />
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold">Profile Access</h2>
+              <h2 className="text-xl font-semibold">{t('profile.title')} {t('common.access')}</h2>
               <p className="text-muted-foreground">
-                Sign up to create and customize your profile
+                {t('auth.signUpDescription')}
               </p>
             </div>
             <Button onClick={() => window.location.href = '/auth'}>
-              Create Account
+              {t('auth.createAccount')}
             </Button>
           </CardContent>
         </Card>
@@ -166,7 +166,7 @@ export const Profile = () => {
           </TabsTrigger>
           <TabsTrigger value="privacy" className="flex items-center gap-2">
             <Shield size={16} />
-            Privacy
+            {t('settings.privacy.title')}
           </TabsTrigger>
         </TabsList>
 
@@ -211,7 +211,7 @@ export const Profile = () => {
           <div className="space-y-4">
             <h3 className="font-medium flex items-center gap-2">
               <User size={16} />
-              Personal Information
+              {t('common.personalInformation')}
             </h3>
             
             <div className="space-y-4">
@@ -222,11 +222,11 @@ export const Profile = () => {
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="Enter your name"
+                    placeholder={t('auth.namePlaceholder')}
                   />
                 ) : (
                   <p className="text-sm py-2 px-3 bg-muted/50 rounded-md">
-                    {profile?.name || 'Not set'}
+                    {profile?.name || t('common.notSet')}
                   </p>
                 )}
               </div>
@@ -238,7 +238,7 @@ export const Profile = () => {
                     {profile?.email || user?.email}
                   </p>
                   <Badge variant="secondary" className="text-xs">
-                    Verified
+                    {t('common.verified')}
                   </Badge>
                 </div>
               </div>
@@ -249,7 +249,7 @@ export const Profile = () => {
           <div className="space-y-4">
             <h3 className="font-medium flex items-center gap-2">
               <Globe size={16} />
-              Preferences
+              {t('common.preferences')}
             </h3>
             
             <div className="space-y-2">
@@ -279,8 +279,8 @@ export const Profile = () => {
               <Label htmlFor="notifications">{t('profile.notifications')}</Label>
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">Enable notifications</p>
-                  <p className="text-xs text-muted-foreground">Receive updates and reminders</p>
+                  <p className="text-sm font-medium">{t('common.enableNotifications')}</p>
+                  <p className="text-xs text-muted-foreground">{t('common.receiveUpdates')}</p>
                 </div>
                 {isEditing ? (
                   <Switch
@@ -290,7 +290,7 @@ export const Profile = () => {
                   />
                 ) : (
                   <Badge variant={profile?.notifications_enabled ? "default" : "secondary"}>
-                    {profile?.notifications_enabled ? "On" : "Off"}
+                    {profile?.notifications_enabled ? t('common.on') : t('common.off')}
                   </Badge>
                 )}
               </div>
@@ -323,9 +323,9 @@ export const Profile = () => {
       {/* Account Info */}
       <Card className="gradient-card shadow-soft">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Account Information</CardTitle>
+          <CardTitle className="text-base">{t('common.accountInformation')}</CardTitle>
           <CardDescription className="text-sm">
-            Your account was created on {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
+            {t('common.accountCreated')} {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : t('common.unknown')}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -342,7 +342,7 @@ export const Profile = () => {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="text-primary mt-1" />
                 <div className="space-y-2">
-                  <h3 className="font-medium">Privacy & Data Security</h3>
+                  <h3 className="font-medium">{t('common.privacyDataSecurity')}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {t('privacy.disclaimer')}
                   </p>
@@ -354,16 +354,16 @@ export const Profile = () => {
           {/* Actions */}
           <Card className="gradient-card shadow-card">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Account Actions</CardTitle>
+              <CardTitle className="text-lg">{t('common.accountActions')}</CardTitle>
               <CardDescription>
-                Manage your account and data
+                {t('common.manageAccount')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="font-medium">Sign Out</p>
-                  <p className="text-sm text-muted-foreground">Sign out of your account</p>
+                  <p className="font-medium">{t('settings.logout')}</p>
+                  <p className="text-sm text-muted-foreground">{t('common.signOutAccount')}</p>
                 </div>
                 <Button variant="outline" onClick={handleLogout}>
                   {t('settings.logout')}
@@ -372,8 +372,8 @@ export const Profile = () => {
 
               <div className="flex items-center justify-between p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
                 <div>
-                  <p className="font-medium text-destructive">Delete Account</p>
-                  <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                  <p className="font-medium text-destructive">{t('settings.delete')}</p>
+                  <p className="text-sm text-muted-foreground">{t('common.permanentlyDelete')}</p>
                 </div>
                 <Button variant="destructive" disabled>
                   {t('settings.delete')}

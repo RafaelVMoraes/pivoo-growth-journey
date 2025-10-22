@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, ChevronDown, ChevronUp, Lightbulb } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ActivityList } from './ActivityList';
 import { CheckInForm } from './CheckInForm';
 import { ReflectionLayer } from './ReflectionLayer';
@@ -17,6 +18,7 @@ interface EnhancedGoalCardProps {
 export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { updateGoal } = useGoals();
+  const { t } = useTranslation();
 
   const getTypeIcon = () => {
     return goal.type === 'outcome' ? (
@@ -100,7 +102,7 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
             </div>
             <div className="flex items-center gap-2 ml-3">
               <Badge className={`${getStatusColor()} font-medium`}>
-                {goal.status.replace('_', ' ')}
+                {t(`goal.status${goal.status.charAt(0).toUpperCase() + goal.status.slice(1).replace('_', '')}`)}
               </Badge>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-2 hover:bg-accent/50">
@@ -157,12 +159,12 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
               {goal.status === 'completed' ? (
                 <>
                   <Play size={14} className="mr-1.5" />
-                  Reactivate
+                  {t('goal.reactivate')}
                 </>
               ) : (
                 <>
                   <CheckCircle2 size={14} className="mr-1.5" />
-                  Mark Complete
+                  {t('goal.markComplete')}
                 </>
               )}
             </Button>

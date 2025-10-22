@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart, Sparkles } from 'lucide-react';
 import { useMemo } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface KPIData {
   goalsCompletedPercentage: number;
@@ -15,8 +16,10 @@ interface MotivationalMicrocopyProps {
 }
 
 export const MotivationalMicrocopy = ({ kpiData, isLoading }: MotivationalMicrocopyProps) => {
+  const { t } = useTranslation();
+  
   const motivationalMessage = useMemo(() => {
-    if (isLoading) return { message: "Loading your progress...", tone: "neutral" };
+    if (isLoading) return { message: t('motivation.loadingProgress'), tone: "neutral" };
 
     const { goalsCompletedPercentage, longestStreak, strongestLifeArea } = kpiData;
     
@@ -26,23 +29,23 @@ export const MotivationalMicrocopy = ({ kpiData, isLoading }: MotivationalMicroc
 
     const messages = {
       high: [
-        `Amazing work! You've completed ${goalsCompletedPercentage}% of your goals. You're truly thriving! 🎉`,
-        `Your consistency is inspiring! ${longestStreak} days shows real commitment to growth.`,
-        `You're excelling in ${strongestLifeArea} - this strength can fuel progress in other areas too!`,
-        `Outstanding progress! Your dedication is transforming your life, one goal at a time.`
+        t('motivation.high.amazingWork').replace('{percentage}', goalsCompletedPercentage.toString()),
+        t('motivation.high.consistency').replace('{days}', longestStreak.toString()),
+        t('motivation.high.excelling').replace('{area}', strongestLifeArea),
+        t('motivation.high.outstanding')
       ],
       medium: [
-        `You're making steady progress! ${goalsCompletedPercentage}% completion shows you're on the right path.`,
-        `Great momentum with your ${longestStreak}-day streak! Small steps lead to big changes.`,
-        `Your strength in ${strongestLifeArea} is shining through. Keep building on this foundation!`,
-        `Solid progress! You're proving that consistency beats perfection every time.`
+        t('motivation.medium.steadyProgress').replace('{percentage}', goalsCompletedPercentage.toString()),
+        t('motivation.medium.momentum').replace('{days}', longestStreak.toString()),
+        t('motivation.medium.strength').replace('{area}', strongestLifeArea),
+        t('motivation.medium.solidProgress')
       ],
       low: [
-        `Every journey starts with a single step. You're here, and that's what matters most.`,
-        `Your ${longestStreak} days of effort show you have what it takes. Keep going!`,
-        `${strongestLifeArea} is your superpower - let it inspire growth in other areas.`,
-        `Progress isn't always linear. What matters is that you keep showing up for yourself.`,
-        `You're building something meaningful. Trust the process and celebrate small wins.`
+        t('motivation.low.journey'),
+        t('motivation.low.effort').replace('{days}', longestStreak.toString()),
+        t('motivation.low.superpower').replace('{area}', strongestLifeArea),
+        t('motivation.low.linear'),
+        t('motivation.low.meaningful')
       ]
     };
 
@@ -53,7 +56,7 @@ export const MotivationalMicrocopy = ({ kpiData, isLoading }: MotivationalMicroc
       message: randomMessage, 
       tone: progressLevel 
     };
-  }, [kpiData, isLoading]);
+  }, [kpiData, isLoading, t]);
 
   if (isLoading) {
     return (

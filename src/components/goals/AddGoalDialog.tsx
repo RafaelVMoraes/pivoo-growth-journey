@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AddGoalDialogProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
 
   const { createGoal } = useGoals();
   const { lifeWheelData, valuesData } = useSelfDiscovery();
+  const { t } = useTranslation();
 
   const lifeWheelAreas = lifeWheelData.map(item => item.area_name);
   const availableValues = valuesData.filter(value => value.selected).map(value => value.value_name);
@@ -71,15 +73,15 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
   };
 
   const categories = [
-    'Personal Development',
-    'Health & Fitness',
-    'Career',
-    'Relationships',
-    'Finance',
-    'Education',
-    'Travel',
-    'Hobbies',
-    'Other'
+    { key: 'category.personalDevelopment', value: 'Personal Development' },
+    { key: 'category.healthFitness', value: 'Health & Fitness' },
+    { key: 'category.career', value: 'Career' },
+    { key: 'category.relationships', value: 'Relationships' },
+    { key: 'category.finance', value: 'Finance' },
+    { key: 'category.education', value: 'Education' },
+    { key: 'category.travel', value: 'Travel' },
+    { key: 'category.hobbies', value: 'Hobbies' },
+    { key: 'category.other', value: 'Other' }
   ];
 
   return (
@@ -89,47 +91,47 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
       </DialogTrigger>
       <DialogContent className="glass-card border-glass max-w-md mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Add New Goal</DialogTitle>
+          <DialogTitle className="text-foreground">{t('goal.addNew')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Goal Title *</Label>
+            <Label htmlFor="title">{t('goal.title')} *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter your goal"
+              placeholder={t('goal.enterGoal')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('goal.description')}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your goal in detail"
+              placeholder={t('goal.describeGoal')}
               rows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{t('goals.categories')}</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
+                <SelectValue placeholder={t('goal.selectCategory')} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat.key} value={cat.value}>{t(cat.key)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetDate">Target Date</Label>
+            <Label htmlFor="targetDate">{t('goal.targetDate')}</Label>
             <Input
               id="targetDate"
               type="date"
@@ -140,10 +142,10 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
 
           {lifeWheelAreas.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="lifeWheelArea">Life Wheel Area</Label>
+              <Label htmlFor="lifeWheelArea">{t('goal.lifeArea')}</Label>
               <Select value={lifeWheelArea} onValueChange={setLifeWheelArea}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a life area" />
+                  <SelectValue placeholder={t('goal.selectLifeArea')} />
                 </SelectTrigger>
                 <SelectContent>
                   {lifeWheelAreas.map(area => (
@@ -156,7 +158,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
 
           {availableValues.length > 0 && (
             <div className="space-y-2">
-              <Label>Related Values</Label>
+              <Label>{t('goal.relatedValues')}</Label>
               <div className="flex flex-wrap gap-2">
                 {availableValues.map(value => (
                   <Badge
@@ -182,14 +184,14 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
               onClick={() => setIsOpen(false)}
               className="flex-1"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={!title.trim() || isSubmitting}
               className="flex-1"
             >
-              {isSubmitting ? 'Creating...' : 'Create Goal'}
+              {isSubmitting ? t('goal.creating') : t('goal.createGoal')}
             </Button>
           </div>
         </form>

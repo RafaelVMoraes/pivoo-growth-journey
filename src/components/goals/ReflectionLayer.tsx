@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Lightbulb, ChevronRight, ChevronLeft } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ReflectionLayerProps {
   goalTitle: string;
@@ -12,6 +13,7 @@ interface ReflectionLayerProps {
 }
 
 export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState({
@@ -22,19 +24,19 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
 
   const questions = [
     {
-      title: "What's driving this goal?",
-      description: "Think about the immediate reason you want to achieve this goal.",
-      placeholder: "I want to achieve this goal because..."
+      title: t('reflection.whatsDriving'),
+      description: t('reflection.drivingDescription'),
+      placeholder: t('reflection.drivingPlaceholder')
     },
     {
-      title: "What deeper need does this fulfill?",
-      description: "Dig deeper - what underlying need or desire is this goal addressing?",
-      placeholder: "This goal helps me fulfill my need for..."
+      title: t('reflection.deeperNeed'),
+      description: t('reflection.deeperDescription'),
+      placeholder: t('reflection.deeperPlaceholder')
     },
     {
-      title: "How does this connect to who you want to be?",
-      description: "Connect this goal to your identity and values. What kind of person will achieving this make you?",
-      placeholder: "Achieving this goal aligns with my vision of becoming someone who..."
+      title: t('reflection.connectIdentity'),
+      description: t('reflection.identityDescription'),
+      placeholder: t('reflection.identityPlaceholder')
     }
   ];
 
@@ -83,7 +85,7 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
         <DialogHeader>
           <DialogTitle className="text-foreground flex items-center gap-2">
             <Lightbulb className="text-primary" size={20} />
-            Explore the Why
+            {t('reflection.exploreWhy')}
           </DialogTitle>
         </DialogHeader>
 
@@ -105,13 +107,13 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
               </div>
             ))}
             <div className="flex-1 ml-2">
-              <p className="text-sm text-muted-foreground">Step {step} of 3</p>
+              <p className="text-sm text-muted-foreground">{t('reflection.stepOf').replace('{step}', step.toString())}</p>
             </div>
           </div>
 
           {/* Goal context */}
           <Card className="p-3 bg-accent/30">
-            <p className="text-sm text-muted-foreground">Reflecting on:</p>
+            <p className="text-sm text-muted-foreground">{t('reflection.reflectingOn')}</p>
             <p className="font-medium text-foreground">{goalTitle}</p>
           </Card>
 
@@ -127,7 +129,7 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="reflection-answer">Your thoughts</Label>
+              <Label htmlFor="reflection-answer">{t('reflection.yourThoughts')}</Label>
               <Textarea
                 id="reflection-answer"
                 value={getCurrentAnswer()}
@@ -146,11 +148,11 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
               onClick={step === 1 ? () => setIsOpen(false) : handleBack}
             >
               {step === 1 ? (
-                'Cancel'
+                t('common.cancel')
               ) : (
                 <>
                   <ChevronLeft size={16} className="mr-1" />
-                  Back
+                  {t('common.back')}
                 </>
               )}
             </Button>
@@ -160,10 +162,10 @@ export const ReflectionLayer = ({ goalTitle, children }: ReflectionLayerProps) =
               disabled={!getCurrentAnswer().trim()}
             >
               {step === 3 ? (
-                'Complete Reflection'
+                t('reflection.completeReflection')
               ) : (
                 <>
-                  Next
+                  {t('common.next')}
                   <ChevronRight size={16} className="ml-1" />
                 </>
               )}

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ValuesData {
   value_name: string;
@@ -23,6 +24,7 @@ export const ValuesSelection = ({
   categories, 
   saving 
 }: ValuesSelectionProps) => {
+  const { t } = useTranslation();
   const selectedValues = valuesData.filter(v => v.selected);
   const unselectedValues = valuesData.filter(v => !v.selected);
 
@@ -33,12 +35,12 @@ export const ValuesSelection = ({
   return (
     <Card className="gradient-card shadow-soft">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Your Core Values</CardTitle>
+        <CardTitle className="text-lg">{t('selfDiscovery.coreValues')}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Select 5-7 values that resonate most with you
+          {t('selfDiscovery.selectValues')}
         </p>
         <div className="text-sm font-medium text-primary">
-          You have selected {selectedCount} out of 7 values
+          {t('selfDiscovery.selectedCount').replace('{count}', selectedCount.toString())}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -47,7 +49,7 @@ export const ValuesSelection = ({
           <div className="space-y-3">
             <h4 className="font-medium text-base flex items-center gap-2">
               <Check size={16} className="text-primary" />
-              Your Selected Values
+              {t('selfDiscovery.selectedValues')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {selectedValues.map((value) => (
@@ -69,7 +71,7 @@ export const ValuesSelection = ({
 
         {/* Available Values by Category */}
         <div className="space-y-4">
-          <h4 className="font-medium text-base">Choose from these values:</h4>
+          <h4 className="font-medium text-base">{t('selfDiscovery.chooseFromValues')}</h4>
           
           {Object.entries(categories).map(([category, categoryValues]) => (
             <div key={category} className="space-y-2">

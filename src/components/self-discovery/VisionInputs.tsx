@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface VisionData {
   vision_1y?: string;
@@ -17,6 +18,7 @@ interface VisionInputsProps {
 }
 
 export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps) => {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState<{vision1y: boolean, vision3y: boolean}>({
     vision1y: false,
     vision3y: false
@@ -33,9 +35,9 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
   return (
     <Card className="gradient-card shadow-soft">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Future Vision</CardTitle>
+        <CardTitle className="text-lg">{t('selfDiscovery.futureVision')}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Describe your aspirations and goals for the future
+          {t('selfDiscovery.visionDescription')}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -47,7 +49,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
             className="w-full justify-between p-0 h-auto font-medium text-base hover:bg-transparent"
           >
             <Label htmlFor="vision-1y" className="cursor-pointer">
-              Vision for 1 year
+              {t('selfDiscovery.vision1Year')}
             </Label>
             {expanded.vision1y ? (
               <ChevronUp size={18} className="text-muted-foreground" />
@@ -60,7 +62,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
             <div className="animate-fade-in">
               <Textarea
                 id="vision-1y"
-                placeholder="Where do you see yourself in one year? What goals will you have achieved? How will your life be different?"
+                placeholder={t('selfDiscovery.vision1YearPlaceholder')}
                 value={visionData.vision_1y || ''}
                 onChange={(e) => handleChange('vision_1y', e.target.value)}
                 disabled={saving}
@@ -78,7 +80,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
             className="w-full justify-between p-0 h-auto font-medium text-base hover:bg-transparent"
           >
             <Label htmlFor="vision-3y" className="cursor-pointer">
-              Vision for 3 years
+              {t('selfDiscovery.vision3Years')}
             </Label>
             {expanded.vision3y ? (
               <ChevronUp size={18} className="text-muted-foreground" />
@@ -91,7 +93,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
             <div className="animate-fade-in">
               <Textarea
                 id="vision-3y"
-                placeholder="What's your bigger picture? Where do you want to be in three years? What major transformations do you envision?"
+                placeholder={t('selfDiscovery.vision3YearPlaceholder')}
                 value={visionData.vision_3y || ''}
                 onChange={(e) => handleChange('vision_3y', e.target.value)}
                 disabled={saving}

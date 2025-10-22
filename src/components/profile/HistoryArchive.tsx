@@ -57,7 +57,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
           <BookOpen size={48} className="text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">{t('history.noData')}</h3>
           <p className="text-muted-foreground text-sm">
-            Complete some goals and visions to see your history here.
+            {t('history.completeGoals')}
           </p>
         </CardContent>
       </Card>
@@ -84,7 +84,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                     <CardTitle className="text-lg">{archive.year}</CardTitle>
                     <CardDescription>
                       {archive.goals.total > 0 && (
-                        <span>{archive.goals.completed} of {archive.goals.total} goals completed</span>
+                        <span>{archive.goals.completed} {t('history.goalsCompleted').replace('{total}', archive.goals.total.toString())}</span>
                       )}
                     </CardDescription>
                   </div>
@@ -106,18 +106,18 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <h4 className="font-medium flex items-center gap-2 mb-3">
                     <Lightbulb size={16} className="text-primary" />
-                    Vision for {archive.year}
+                    {t('history.visionFor')} {archive.year}
                   </h4>
                   <div className="space-y-2">
                     {archive.vision.word_year && (
                       <div>
-                        <span className="text-sm text-muted-foreground">Word: </span>
+                        <span className="text-sm text-muted-foreground">{t('history.word')}: </span>
                         <Badge variant="outline">{archive.vision.word_year}</Badge>
                       </div>
                     )}
                     {archive.vision.phrase_year && (
                       <div>
-                        <span className="text-sm text-muted-foreground">Phrase: </span>
+                        <span className="text-sm text-muted-foreground">{t('history.phrase')}: </span>
                         <span className="text-sm font-medium">{archive.vision.phrase_year}</span>
                       </div>
                     )}
@@ -130,7 +130,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <h4 className="font-medium flex items-center gap-2 mb-3">
                     <Award size={16} className="text-success" />
-                    Completed Goals
+                    {t('history.completedGoals')}
                   </h4>
                   <div className="space-y-2">
                     {archive.goals.archivedGoals.slice(0, 3).map((goal, index) => (
@@ -143,7 +143,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                     ))}
                     {archive.goals.archivedGoals.length > 3 && (
                       <p className="text-xs text-muted-foreground">
-                        +{archive.goals.archivedGoals.length - 3} more goals
+                        {t('history.moreGoals').replace('{count}', (archive.goals.archivedGoals.length - 3).toString())}
                       </p>
                     )}
                   </div>
@@ -155,7 +155,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium flex items-center gap-2">
                     <BookOpen size={16} className="text-primary" />
-                    Year Summary
+                    {t('history.yearSummary')}
                   </h4>
                   {editingYear !== archive.year && (
                     <Button
@@ -173,7 +173,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                     <Textarea
                       value={editingSummary}
                       onChange={(e) => setEditingSummary(e.target.value)}
-                      placeholder="Write a summary of your year..."
+                      placeholder={t('history.summaryPlaceholder')}
                       className="min-h-[100px]"
                     />
                     <div className="flex gap-2">
@@ -202,7 +202,7 @@ export const HistoryArchive = ({}: HistoryArchiveProps) => {
                       </p>
                     ) : (
                       <p className="text-sm text-muted-foreground italic">
-                        No summary yet. Click edit to add your thoughts about {archive.year}.
+                        {t('history.noSummary')} {archive.year}.
                       </p>
                     )}
                   </div>

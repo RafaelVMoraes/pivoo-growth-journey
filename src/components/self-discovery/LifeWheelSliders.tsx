@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface LifeWheelData {
   area_name: string;
@@ -15,6 +16,7 @@ interface LifeWheelSlidersProps {
 }
 
 export const LifeWheelSliders = ({ data, onUpdate, saving }: LifeWheelSlidersProps) => {
+  const { t } = useTranslation();
   const [showingValue, setShowingValue] = useState<{area: string, type: 'current' | 'desired'} | null>(null);
 
   const handleSliderChange = (areaName: string, type: 'current' | 'desired', value: number[]) => {
@@ -32,9 +34,9 @@ export const LifeWheelSliders = ({ data, onUpdate, saving }: LifeWheelSlidersPro
   return (
     <Card className="gradient-card shadow-soft">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Rate Your Life Areas</CardTitle>
+        <CardTitle className="text-lg">{t('selfDiscovery.rateLifeAreas')}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Use the sliders to rate where you are now and where you want to be
+          {t('selfDiscovery.rateDescription')}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -45,7 +47,7 @@ export const LifeWheelSliders = ({ data, onUpdate, saving }: LifeWheelSlidersPro
             {/* Current Score Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm text-muted-foreground">Where I am now</label>
+                <label className="text-sm text-muted-foreground">{t('selfDiscovery.whereIAmNow')}</label>
                 <div className="relative">
                   <span className="text-sm font-medium text-primary">
                     {area.current_score}
@@ -71,7 +73,7 @@ export const LifeWheelSliders = ({ data, onUpdate, saving }: LifeWheelSlidersPro
             {/* Desired Score Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm text-muted-foreground">Where I want to be</label>
+                <label className="text-sm text-muted-foreground">{t('selfDiscovery.whereIWantToBe')}</label>
                 <div className="relative">
                   <span className="text-sm font-medium text-accent">
                     {area.desired_score}

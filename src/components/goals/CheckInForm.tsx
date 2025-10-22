@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import { Calendar, TrendingUp, CheckCircle } from 'lucide-react';
 import { useCheckIns } from '@/hooks/useCheckIns';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface CheckInFormProps {
   goalId: string;
@@ -15,6 +16,7 @@ interface CheckInFormProps {
 
 export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
   const { checkIns, isLoading, createCheckIn } = useCheckIns(goalId, activityId);
+  const { t } = useTranslation();
   const [inputType, setInputType] = useState<'numeric' | 'checkbox' | 'percentage'>('checkbox');
   const [progressValue, setProgressValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,7 +53,7 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
       case 'percentage':
         return `${checkIn.progress_value}%`;
       case 'checkbox':
-        return checkIn.progress_value === 'true' ? '✓ Done' : '✗ Not done';
+        return checkIn.progress_value === 'true' ? `✓ ${t('checkin.done')}` : `✗ ${t('checkin.notDone')}`;
       default:
         return checkIn.progress_value;
     }
@@ -69,7 +71,7 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-foreground">Progress Tracking</h4>
+        <h4 className="text-sm font-medium text-foreground">{t('checkin.progressTracking')}</h4>
         <TrendingUp size={16} className="text-primary" />
       </div>
 
@@ -85,19 +87,19 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
                 <SelectItem value="checkbox">
                   <div className="flex items-center gap-2">
                     <CheckCircle size={14} />
-                    Done/Not Done
+                    {t('checkin.doneNotDone')}
                   </div>
                 </SelectItem>
                 <SelectItem value="numeric">
                   <div className="flex items-center gap-2">
                     <TrendingUp size={14} />
-                    Number
+                    {t('checkin.number')}
                   </div>
                 </SelectItem>
                 <SelectItem value="percentage">
                   <div className="flex items-center gap-2">
                     <Calendar size={14} />
-                    Percentage
+                    {t('checkin.percentage')}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -110,14 +112,14 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
                 className="flex-1"
               >
                 <CheckCircle size={14} className="mr-1" />
-                {isSubmitting ? 'Recording...' : 'Mark as Done'}
+                {isSubmitting ? t('checkin.recording') : t('checkin.markAsDone')}
               </Button>
             ) : (
               <>
                 <Input
                   value={progressValue}
                   onChange={(e) => setProgressValue(e.target.value)}
-                  placeholder={inputType === 'percentage' ? '0-100' : 'Enter value'}
+                  placeholder={inputType === 'percentage' ? '0-100' : t('checkin.enterValue')}
                   type={inputType === 'percentage' ? 'number' : 'text'}
                   min={inputType === 'percentage' ? '0' : undefined}
                   max={inputType === 'percentage' ? '100' : undefined}
@@ -127,7 +129,7 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
                   type="submit"
                   disabled={isSubmitting || !progressValue.trim()}
                 >
-                  {isSubmitting ? 'Recording...' : 'Record'}
+                  {isSubmitting ? t('checkin.recording') : t('checkin.record')}
                 </Button>
               </>
             )}
@@ -138,7 +140,7 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
       {/* Recent check-ins */}
       {checkIns.length > 0 && (
         <div className="space-y-2">
-          <Label className="text-sm font-medium">Recent Progress</Label>
+          <Label className="text-sm font-medium">{t('checkin.recentProgress')}</Label>
           <div className="space-y-2 max-h-32 overflow-y-auto">
             {checkIns.slice(0, 5).map(checkIn => (
               <div key={checkIn.id} className="flex items-center justify-between text-sm p-2 bg-accent/20 rounded">

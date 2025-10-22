@@ -38,14 +38,14 @@ export const Settings = () => {
     try {
       await signOut();
       toast({
-        title: 'Logged out successfully',
-        description: 'You have been signed out of your account.',
+        title: t('common.loggedOutSuccessfully'),
+        description: t('common.loggedOutDesc'),
       });
     } catch (error) {
       console.error('Error logging out:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to log out. Please try again.',
+        title: t('common.error'),
+        description: t('common.failedLogout'),
         variant: 'destructive',
       });
     }
@@ -74,8 +74,8 @@ export const Settings = () => {
           {!isGuest && profile ? (
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
               <div>
-                <p className="font-medium">Push Notifications</p>
-                <p className="text-sm text-muted-foreground">Receive updates and reminders</p>
+                <p className="font-medium">{t('common.enableNotifications')}</p>
+                <p className="text-sm text-muted-foreground">{t('common.receiveUpdates')}</p>
               </div>
               <Switch
                 checked={profile.notifications_enabled ?? true}
@@ -85,7 +85,7 @@ export const Settings = () => {
           ) : (
             <div className="bg-muted/50 rounded-lg p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                Sign in to manage notification preferences
+                {t('auth.signInDescription')}
               </p>
             </div>
           )}
@@ -97,16 +97,16 @@ export const Settings = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Moon size={18} className="text-primary" />
-            Appearance
+            {t('settings.appearance')}
           </CardTitle>
           <CardDescription>
-            Customize the look and feel of the app
+            {t('settings.appearanceDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-muted/50 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Theme settings and customization options coming soon
+              {t('settings.themeComingSoon')}
             </p>
           </div>
         </CardContent>
@@ -134,8 +134,8 @@ export const Settings = () => {
             {!isGuest && (
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium">{t('settings.logout')}</p>
-                  <p className="text-xs text-muted-foreground">Sign out of your account</p>
+                <p className="text-sm font-medium">{t('settings.logout')}</p>
+                <p className="text-xs text-muted-foreground">{t('common.signOutAccount')}</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleLogout}>
                   <LogOut size={14} className="mr-2" />
@@ -147,7 +147,7 @@ export const Settings = () => {
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div>
                 <p className="text-sm font-medium">{t('settings.export')}</p>
-                <p className="text-xs text-muted-foreground">Download your personal data</p>
+                <p className="text-xs text-muted-foreground">{t('settings.downloadData')}</p>
               </div>
               <Button variant="outline" size="sm" disabled>
                 <Download size={14} className="mr-2" />
@@ -158,7 +158,7 @@ export const Settings = () => {
             <div className="flex items-center justify-between p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
               <div>
                 <p className="text-sm font-medium text-destructive">{t('settings.delete')}</p>
-                <p className="text-xs text-muted-foreground">Permanently delete your account</p>
+                <p className="text-xs text-muted-foreground">{t('settings.permanentlyDeleteAccount')}</p>
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -190,19 +190,19 @@ export const Settings = () => {
       {/* App Information */}
       <Card className="gradient-card shadow-soft">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2">
             <SettingsIcon size={16} className="text-primary" />
-            App Information
+            {t('settings.appInformation')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Version</span>
+            <span className="text-muted-foreground">{t('settings.version')}</span>
             <Badge variant="secondary">1.0.0 Beta</Badge>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Status</span>
-            <Badge variant="secondary">Development</Badge>
+            <span className="text-muted-foreground">{t('settings.status')}</span>
+            <Badge variant="secondary">{t('settings.development')}</Badge>
           </div>
         </CardContent>
       </Card>
@@ -214,10 +214,10 @@ export const Settings = () => {
               <AlertTriangle size={20} className="text-warning mt-0.5" />
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">
-                  Limited Guest Access
+                  {t('settings.limitedGuestAccess')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Some settings require an account. Create one to unlock full functionality.
+                  {t('settings.guestAccessDesc')}
                 </p>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Quote } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface VisionData {
   word_year?: string;
@@ -15,6 +16,7 @@ interface YearFocusProps {
 }
 
 export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
+  const { t } = useTranslation();
   const handleChange = (field: keyof VisionData, value: string) => {
     onUpdate({ [field]: value });
   };
@@ -26,21 +28,21 @@ export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
       <CardHeader className="pb-4">
         <CardTitle className="text-lg flex items-center gap-2">
           <Quote size={20} className="text-primary" />
-          Your {currentYear} Focus
+          {t('selfDiscovery.yearFocus').replace('{year}', currentYear.toString())}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Define your guiding theme for this year
+          {t('selfDiscovery.guidingTheme')}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Word of the Year */}
         <div className="space-y-2">
           <Label htmlFor="word-year" className="text-base font-medium">
-            Word of the Year
+            {t('selfDiscovery.wordOfYear')}
           </Label>
           <Input
             id="word-year"
-            placeholder="e.g., Growth, Focus, Balance..."
+            placeholder={t('selfDiscovery.wordPlaceholder')}
             value={visionData.word_year || ''}
             onChange={(e) => handleChange('word_year', e.target.value)}
             disabled={saving}
@@ -51,11 +53,11 @@ export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
         {/* Phrase of the Year */}
         <div className="space-y-2">
           <Label htmlFor="phrase-year" className="text-base font-medium">
-            Phrase of the Year
+            {t('selfDiscovery.phraseOfYear')}
           </Label>
           <Input
             id="phrase-year"
-            placeholder="e.g., Progress over perfection, Embrace the journey..."
+            placeholder={t('selfDiscovery.phrasePlaceholder')}
             value={visionData.phrase_year || ''}
             onChange={(e) => handleChange('phrase_year', e.target.value)}
             disabled={saving}

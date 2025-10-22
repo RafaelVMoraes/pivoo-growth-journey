@@ -11,6 +11,7 @@ import { Plus, X, Target, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-re
 import { useGoals } from '@/hooks/useGoals';
 import { useActivities } from '@/hooks/useActivities';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedAddGoalDialogProps {
@@ -42,6 +43,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   const { createGoal } = useGoals();
   const { createActivity } = useActivities();
   const { lifeWheelData, valuesData } = useSelfDiscovery();
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   const lifeWheelAreas = lifeWheelData.map(item => item.area_name);
@@ -93,8 +95,8 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
       }
 
       toast({
-        title: "Goal created!",
-        description: `"${title}" has been added to your goals.`,
+        title: t('goal.created'),
+        description: `"${title}" ${t('goal.createdDesc')}`,
       });
 
       resetForm();
@@ -102,8 +104,8 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
     } catch (error) {
       console.error('Error creating goal:', error);
       toast({
-        title: "Error",
-        description: "Failed to create goal. Please try again.",
+        title: t('goal.error'),
+        description: t('goal.errorDesc'),
         variant: "destructive",
       });
     } finally {
@@ -141,13 +143,13 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   const renderStep1 = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-foreground">Create Your Goal</h3>
-        <p className="text-sm text-muted-foreground">Define what you want to achieve and how</p>
+        <h3 className="text-xl font-semibold text-foreground">{t('goal.createYourGoal')}</h3>
+        <p className="text-sm text-muted-foreground">{t('goal.defineWhatYouWant')}</p>
       </div>
 
       {/* Goal Type Selection */}
       <div className="space-y-3">
-        <Label className="text-base font-medium">Goal Type *</Label>
+        <Label className="text-base font-medium">{t('goal.type')} *</Label>
         <RadioGroup value={goalType} onValueChange={(value: 'outcome' | 'process') => setGoalType(value)}>
           <div className="flex items-center space-x-3 p-4 border rounded-xl hover:bg-accent/30 cursor-pointer transition-colors">
             <RadioGroupItem value="outcome" id="outcome" />
@@ -155,8 +157,8 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               <Label htmlFor="outcome" className="flex items-center gap-3 cursor-pointer">
                 <Target size={20} className="text-primary" />
                 <div>
-                  <div className="font-medium">Outcome Goal 🎯</div>
-                  <div className="text-sm text-muted-foreground">A specific result to achieve</div>
+                  <div className="font-medium">{t('goal.outcomeGoal')} 🎯</div>
+                  <div className="text-sm text-muted-foreground">{t('goal.outcomeDesc')}</div>
                 </div>
               </Label>
             </div>
@@ -168,8 +170,8 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               <Label htmlFor="process" className="flex items-center gap-3 cursor-pointer">
                 <RotateCcw size={20} className="text-primary" />
                 <div>
-                  <div className="font-medium">Process Goal 🔄</div>
-                  <div className="text-sm text-muted-foreground">A habit or recurring action</div>
+                  <div className="font-medium">{t('goal.processGoal')} 🔄</div>
+                  <div className="text-sm text-muted-foreground">{t('goal.processDesc')}</div>
                 </div>
               </Label>
             </div>
@@ -180,20 +182,20 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
       {/* Goal Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="title" className="text-base font-medium">Goal Title *</Label>
+          <Label htmlFor="title" className="text-base font-medium">{t('goal.title')} *</Label>
           <Input
             id="title"
-            placeholder={goalType === 'outcome' ? 'e.g., Reach 75kg by December' : 'e.g., Exercise 3 times per week'}
+            placeholder={goalType === 'outcome' ? t('goal.titlePlaceholderOutcome') : t('goal.titlePlaceholderProcess')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Life Area *</Label>
+          <Label>{t('goal.lifeArea')} *</Label>
           <Select value={selectedArea} onValueChange={setSelectedArea}>
             <SelectTrigger>
-              <SelectValue placeholder="Select area" />
+              <SelectValue placeholder={t('goal.selectArea')} />
             </SelectTrigger>
             <SelectContent>
               {lifeWheelAreas.map(area => (
@@ -204,7 +206,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="target-date">Target Date</Label>
+          <Label htmlFor="target-date">{t('goal.targetDate')}</Label>
           <Input
             id="target-date"
             type="date"
@@ -214,10 +216,10 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="description">Description (Optional)</Label>
+          <Label htmlFor="description">{t('goal.descriptionOptional')}</Label>
           <Textarea
             id="description"
-            placeholder="Why is this goal important to you?"
+            placeholder={t('goal.descriptionPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -228,7 +230,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
       {/* Values Connection */}
       {availableValues.length > 0 && (
         <div className="space-y-3">
-          <Label className="text-base font-medium">Connect to Your Values (Optional)</Label>
+          <Label className="text-base font-medium">{t('goal.connectToValues')}</Label>
           <div className="flex flex-wrap gap-2">
             {availableValues.map(value => (
               <Badge
@@ -252,27 +254,27 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-foreground">Add Activities</h3>
-        <p className="text-sm text-muted-foreground">Define specific actions that will help you achieve this goal</p>
+        <h3 className="text-xl font-semibold text-foreground">{t('goal.addActivities')}</h3>
+        <p className="text-sm text-muted-foreground">{t('goal.defineActions')}</p>
       </div>
 
       <div className="space-y-4">
         {activities.map((activity, index) => (
           <div key={index} className="flex gap-3 items-end">
             <div className="flex-1 space-y-2">
-              <Label htmlFor={`activity-${index}`}>Activity {index + 1}</Label>
+              <Label htmlFor={`activity-${index}`}>{t('goal.activity')} {index + 1}</Label>
               <Input
                 id={`activity-${index}`}
-                placeholder="e.g., Go to the gym, Read for 30 minutes"
+                placeholder={t('goal.activityPlaceholder')}
                 value={activity.description}
                 onChange={(e) => updateActivity(index, 'description', e.target.value)}
               />
             </div>
             <div className="w-32 space-y-2">
-              <Label htmlFor={`frequency-${index}`}>Frequency</Label>
+              <Label htmlFor={`frequency-${index}`}>{t('goal.frequency')}</Label>
               <Input
                 id={`frequency-${index}`}
-                placeholder="e.g., 3x/week"
+                placeholder={t('goal.frequencyPlaceholder')}
                 value={activity.frequency}
                 onChange={(e) => updateActivity(index, 'frequency', e.target.value)}
               />
@@ -298,7 +300,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
           className="w-full gap-2"
         >
           <Plus size={16} />
-          Add Another Activity
+          {t('goal.addAnotherActivity')}
         </Button>
       </div>
     </div>
@@ -314,7 +316,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Target className="text-primary" />
-            Add New Goal - Step {step} of 2
+            {t('goal.addNew')} - {t('goal.stepOf')} {step} {t('goal.of')} 2
           </DialogTitle>
         </DialogHeader>
 
@@ -329,10 +331,10 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
             onClick={() => step > 1 ? setStep(step - 1) : setIsOpen(false)}
             disabled={isSubmitting}
           >
-            {step === 1 ? 'Cancel' : (
+            {step === 1 ? t('common.cancel') : (
               <>
                 <ChevronLeft size={16} />
-                Back
+                {t('common.back')}
               </>
             )}
           </Button>
@@ -342,7 +344,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               onClick={() => setStep(step + 1)}
               disabled={!canProceedFromStep1 || isSubmitting}
             >
-              Next: Add Activities
+              {t('goal.nextAddActivities')}
               <ChevronRight size={16} />
             </Button>
           ) : (
@@ -350,7 +352,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               onClick={handleSubmit}
               disabled={!canSubmit || isSubmitting}
             >
-              {isSubmitting ? 'Creating...' : 'Create Goal'}
+              {isSubmitting ? t('goal.creating') : t('goal.createGoal')}
             </Button>
           )}
         </div>
