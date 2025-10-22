@@ -25,7 +25,7 @@ export const useChatbot = () => {
       role,
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
   };
 
   const sendMessage = async (prompt: string): Promise<void> => {
@@ -38,23 +38,28 @@ export const useChatbot = () => {
     addMessage(prompt, 'user');
 
     try {
-      // Call the Supabase function
-      const { data, error: functionError } = await supabase.functions.invoke('Chatbot-gemini', {
-        body: { prompt }
-      });
+      // Call the Supabase Edge Function
+      const { data, error: functionError } = await supabase.functions.invoke(
+        'Chatbot-gemini',
+        {
+          body: { prompt },
+          headers: {
+            'Content-Type': 'application/json', // ensure JSON is sent
+          },
+        }
+      );
 
       if (functionError) {
         throw new Error(functionError.message);
       }
 
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+      // Some Edge Functions return 'text' directly, some wrap in data
+      const responseText =
+        (data && typeof data === 'object' && 'text' in data
+          ? (data as { text: string }).text
+          : 'No response received');
 
-      // Add assistant response
-      const response = data?.text || 'No response received';
-      addMessage(response, 'assistant');
-
+      addMessage(responseText, 'assistant');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
