@@ -1,25 +1,27 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: Home,
-  },
-  {
-    id: 'goals',
-    label: 'Goals',
-    path: '/goals',
-    icon: Target,
-  },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const navItems = [
+    {
+      id: 'dashboard',
+      label: t('nav.dashboard'),
+      path: '/dashboard',
+      icon: Home,
+    },
+    {
+      id: 'goals',
+      label: t('nav.goals'),
+      path: '/goals',
+      icon: Target,
+    },
+  ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border glass z-50">

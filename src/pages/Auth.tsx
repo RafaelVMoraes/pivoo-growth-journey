@@ -8,12 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'signup' ? 'signup' : 'signin');
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +48,7 @@ export const Auth = () => {
       
       if (error) {
         toast({
-          title: 'Sign in failed',
+          title: t('auth.signInFailed'),
           description: error.message,
           variant: 'destructive',
         });
@@ -55,8 +57,8 @@ export const Auth = () => {
       }
     } catch (error) {
       toast({
-        title: 'Sign in failed',
-        description: 'An unexpected error occurred',
+        title: t('auth.signInFailed'),
+        description: t('auth.unexpectedError'),
         variant: 'destructive',
       });
     } finally {
@@ -69,8 +71,8 @@ export const Auth = () => {
     
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: 'Passwords do not match',
-        description: 'Please make sure both passwords are identical',
+        title: t('auth.passwordMismatch'),
+        description: t('auth.passwordMismatchDesc'),
         variant: 'destructive',
       });
       return;
@@ -84,28 +86,28 @@ export const Auth = () => {
       if (error) {
         if (error.message.includes('already registered')) {
           toast({
-            title: 'Account already exists',
-            description: 'This email is already registered. Try signing in instead.',
+            title: t('auth.accountExists'),
+            description: t('auth.accountExistsDesc'),
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'Sign up failed',
+            title: t('auth.signUpFailed'),
             description: error.message,
             variant: 'destructive',
           });
         }
       } else {
         toast({
-          title: 'Account created successfully!',
-          description: 'You can now start your growth journey.',
+          title: t('auth.accountCreated'),
+          description: t('auth.accountCreatedDesc'),
         });
         navigate('/dashboard');
       }
     } catch (error) {
       toast({
-        title: 'Sign up failed',
-        description: 'An unexpected error occurred',
+        title: t('auth.signUpFailed'),
+        description: t('auth.unexpectedError'),
         variant: 'destructive',
       });
     } finally {
@@ -136,30 +138,30 @@ export const Auth = () => {
         <Card className="w-full max-w-md shadow-card animate-scale-in">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl">
-              {activeTab === 'signin' ? 'Welcome back' : 'Create account'}
+              {activeTab === 'signin' ? t('auth.welcomeBack') : t('auth.createAccount')}
             </CardTitle>
             <CardDescription>
               {activeTab === 'signin' 
-                ? 'Sign in to continue your growth journey' 
-                : 'Start your personal growth journey'}
+                ? t('auth.signInDescription')
+                : t('auth.signUpDescription')}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">{t('auth.signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('auth.signUp')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4 mt-6">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       required
@@ -167,12 +169,12 @@ export const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
                     <div className="relative">
                       <Input
                         id="signin-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
+                        placeholder={t('auth.passwordPlaceholder')}
                         value={formData.password}
                         onChange={(e) => handleInputChange('password', e.target.value)}
                         required
@@ -190,7 +192,7 @@ export const Auth = () => {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Signing in...' : 'Sign In'}
+                    {isLoading ? t('auth.signingIn') : t('auth.signIn')}
                   </Button>
                 </form>
               </TabsContent>
@@ -198,22 +200,22 @@ export const Auth = () => {
               <TabsContent value="signup" className="space-y-4 mt-6">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Name (optional)</Label>
+                    <Label htmlFor="signup-name">{t('auth.name')}</Label>
                     <Input
                       id="signup-name"
                       type="text"
-                      placeholder="Your name"
+                      placeholder={t('auth.namePlaceholder')}
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t('auth.email')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       required
@@ -221,12 +223,12 @@ export const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t('auth.password')}</Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Create a password"
+                        placeholder={t('auth.createPasswordPlaceholder')}
                         value={formData.password}
                         onChange={(e) => handleInputChange('password', e.target.value)}
                         required
@@ -244,11 +246,11 @@ export const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Label htmlFor="confirm-password">{t('auth.confirmPassword')}</Label>
                     <Input
                       id="confirm-password"
                       type="password"
-                      placeholder="Confirm your password"
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                       required
@@ -256,7 +258,7 @@ export const Auth = () => {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating account...' : 'Create Account'}
+                    {isLoading ? t('auth.creatingAccount') : t('auth.createAccount')}
                   </Button>
                 </form>
               </TabsContent>

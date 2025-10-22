@@ -16,6 +16,7 @@ import {
   UserPlus,
   LogIn
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface DrawerMenuProps {
   open: boolean;
@@ -25,6 +26,7 @@ interface DrawerMenuProps {
 export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
   const { user, isGuest, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -42,7 +44,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
       <SheetContent side="right" className="w-80 glass">
         <SheetHeader className="text-left">
           <SheetTitle className="bg-gradient-primary bg-clip-text text-transparent">
-            Pivoo Menu
+            {t('nav.menu')}
           </SheetTitle>
         </SheetHeader>
         
@@ -54,7 +56,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
             onClick={() => handleNavigation('/self-discovery')}
           >
             <LifeBuoy className="mr-3 h-5 w-5" />
-            Self-Discovery
+            {t('nav.selfDiscovery')}
           </Button>
 
           <Separator className="my-4" />
@@ -69,8 +71,8 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
                 disabled={isGuest}
               >
                 <User className="mr-3 h-5 w-5" />
-                Profile
-                {isGuest && <span className="ml-auto text-xs text-muted-foreground">Login required</span>}
+                {t('nav.profile')}
+                {isGuest && <span className="ml-auto text-xs text-muted-foreground">{t('nav.loginRequired')}</span>}
               </Button>
 
               <Button
@@ -79,7 +81,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
                 onClick={() => handleNavigation('/settings')}
               >
                 <Settings className="mr-3 h-5 w-5" />
-                Settings
+                {t('nav.settings')}
               </Button>
 
               <Separator className="my-4" />
@@ -94,7 +96,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
               onClick={handleSignOut}
             >
               <LogOut className="mr-3 h-5 w-5" />
-              Sign Out
+              {t('nav.signOut')}
             </Button>
           ) : isGuest ? (
             <>
@@ -104,7 +106,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
                 onClick={() => handleNavigation('/auth')}
               >
                 <LogIn className="mr-3 h-5 w-5" />
-                Sign In
+                {t('nav.signIn')}
               </Button>
               <Button
                 variant="ghost"
@@ -112,7 +114,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
                 onClick={() => handleNavigation('/auth?tab=signup')}
               >
                 <UserPlus className="mr-3 h-5 w-5" />
-                Create Account
+                {t('nav.createAccount')}
               </Button>
             </>
           ) : null}
@@ -121,7 +123,7 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
         {/* Footer */}
         <div className="absolute bottom-4 left-4 right-4">
           <p className="text-xs text-muted-foreground text-center">
-            {isGuest ? 'Exploring as guest' : user ? `Welcome, ${user.email}` : 'Pivoo - Growth Journey'}
+            {isGuest ? t('nav.exploringAsGuest') : user ? `${t('dashboard.welcome')}, ${user.email}` : t('nav.growthJourney')}
           </p>
         </div>
       </SheetContent>

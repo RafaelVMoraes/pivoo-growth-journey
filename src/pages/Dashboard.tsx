@@ -7,9 +7,11 @@ import { WeeklyHabitsChart } from '@/components/dashboard/WeeklyHabitsChart';
 import { MonthlyProgressChart } from '@/components/dashboard/MonthlyProgressChart';
 import { KPICards } from '@/components/dashboard/KPICards';
 import { MotivationalMicrocopy } from '@/components/dashboard/MotivationalMicrocopy';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Dashboard = () => {
   const { user, isGuest } = useAuth();
+  const { t } = useTranslation();
   const { 
     isLoading, 
     weeklyHabitsData, 
@@ -22,12 +24,12 @@ export const Dashboard = () => {
       {/* Welcome Section */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold">
-          {isGuest ? 'Welcome, Explorer' : user ? `Welcome back` : 'Welcome'}
+          {isGuest ? t('dashboard.welcomeGuest') : user ? t('dashboard.welcome') : t('dashboard.welcomeGeneric')}
         </h1>
         <p className="text-muted-foreground">
           {isGuest 
-            ? 'Your overview will appear here once you create an account'
-            : 'Here\'s your daily overview and progress'
+            ? t('dashboard.overviewGuest')
+            : t('dashboard.overview')
           }
         </p>
       </div>
@@ -50,16 +52,16 @@ export const Dashboard = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar size={20} className="text-primary" />
-              Daily Check-in
+              {t('dashboard.dailyCheckIn')}
             </CardTitle>
-            <Badge variant="secondary">Coming Soon</Badge>
+            <Badge variant="secondary">{t('dashboard.comingSoon')}</Badge>
           </div>
-          <CardDescription>Start your day with intention</CardDescription>
+          <CardDescription>{t('dashboard.startYourDay')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="bg-muted/50 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Daily reflections and mood tracking will appear here
+              {t('dashboard.dailyReflections')}
             </p>
           </div>
         </CardContent>
@@ -70,15 +72,15 @@ export const Dashboard = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Heart size={20} className="text-primary" />
-            Mindfulness Corner
+            {t('dashboard.mindfulnessCorner')}
           </CardTitle>
-          <CardDescription>Take a moment for yourself</CardDescription>
+          <CardDescription>{t('dashboard.takeAMoment')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
             <Heart size={32} className="text-muted-foreground mx-auto" />
             <p className="text-sm text-muted-foregroround">
-              Breathing exercises and mindful moments will be here
+              {t('dashboard.breathingExercises')}
             </p>
           </div>
         </CardContent>
@@ -88,9 +90,9 @@ export const Dashboard = () => {
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
-              <h3 className="font-semibold text-primary">Ready to start your journey?</h3>
+              <h3 className="font-semibold text-primary">{t('dashboard.readyToStart')}</h3>
               <p className="text-sm text-muted-foreground">
-                Create an account to track your progress and unlock all features
+                {t('dashboard.createAccountPrompt')}
               </p>
             </div>
           </CardContent>

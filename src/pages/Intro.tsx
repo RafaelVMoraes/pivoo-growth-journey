@@ -4,10 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import heroImage from '@/assets/hero-growth.jpg';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Intro = () => {
   const navigate = useNavigate();
   const { setGuestMode } = useAuth();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGuestMode = async () => {
@@ -33,7 +35,7 @@ export const Intro = () => {
           <div className="relative">
             <img
               src={heroImage}
-              alt="Personal growth journey"
+              alt={t('intro.heroAlt')}
               className="w-48 h-36 object-cover rounded-3xl shadow-card mx-auto"
             />
             <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-glow">
@@ -44,13 +46,13 @@ export const Intro = () => {
           {/* Welcome Text */}
           <div className="space-y-4">
             <h1 className="text-3xl font-bold text-foreground leading-tight">
-              Welcome to{' '}
+              {t('intro.welcome')}{' '}
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 Pivoo
               </span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Your space of clarity and growth. Track your journey, set meaningful goals, and discover your authentic self.
+              {t('intro.tagline')}
             </p>
           </div>
 
@@ -62,10 +64,10 @@ export const Intro = () => {
               className="w-full h-12 text-base font-medium shadow-soft hover:shadow-glow transition-all duration-200"
             >
               {isLoading ? (
-                "Getting started..."
+                t('intro.gettingStarted')
               ) : (
                 <>
-                  Start Exploring
+                  {t('intro.startExploring')}
                   <ArrowRight size={18} className="ml-2" />
                 </>
               )}
@@ -76,7 +78,7 @@ export const Intro = () => {
               onClick={handleSignIn}
               className="w-full h-12 text-base font-medium"
             >
-              I already have an account
+              {t('auth.alreadyHaveAccount')}
             </Button>
           </div>
         </div>
@@ -85,7 +87,7 @@ export const Intro = () => {
       {/* Footer */}
       <div className="px-6 pb-8">
         <p className="text-center text-sm text-muted-foreground">
-          Continue as guest to explore, or create an account to save your progress
+          {t('intro.continueAsGuest')}
         </p>
       </div>
     </div>

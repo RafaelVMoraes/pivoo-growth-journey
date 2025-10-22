@@ -6,17 +6,19 @@ import { Target, Plus, Clock, CheckCircle, Tag, Bell } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { EnhancedAddGoalDialog } from '@/components/goals/EnhancedAddGoalDialog';
 import { EnhancedGoalCard } from '@/components/goals/EnhancedGoalCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Goals = () => {
   const { user, isGuest } = useAuth();
   const { goals, isLoading } = useGoals();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-4 pb-20 flex items-center justify-center">
         <div className="text-center">
           <Target size={48} className="mx-auto mb-4 text-primary animate-spin" />
-          <p className="text-muted-foreground">Loading goals...</p>
+          <p className="text-muted-foreground">{t('goals.loadingGoals')}</p>
         </div>
       </div>
     );
@@ -30,18 +32,18 @@ export const Goals = () => {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-foreground">Goals</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('goals.title')}</h1>
             {!isGuest && (
               <EnhancedAddGoalDialog>
                 <Button className="gap-2">
                   <Plus size={20} />
-                  Add Goal
+                  {t('goals.addGoal')}
                 </Button>
               </EnhancedAddGoalDialog>
             )}
           </div>
           <p className="text-muted-foreground">
-            Set and track your personal development objectives
+            {t('goals.subtitle')}
           </p>
         </div>
 
@@ -59,27 +61,27 @@ export const Goals = () => {
               <div className="gradient-card p-8 rounded-2xl mb-6">
                 <Target size={64} className="mx-auto mb-4 text-primary" />
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Set Your First Goal
+                  {t('goals.setFirstGoal')}
                 </h2>
                 <p className="text-muted-foreground mb-6">
-                  Transform your aspirations into achievable objectives with our SMART goal framework
+                  {t('goals.transformAspiration')}
                 </p>
                 
                 <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">Time-bound</Badge>
-                  <Badge variant="secondary">Specific</Badge>
-                  <Badge variant="secondary">Achievable</Badge>
+                  <Badge variant="secondary">{t('goals.timeBound')}</Badge>
+                  <Badge variant="secondary">{t('goals.specific')}</Badge>
+                  <Badge variant="secondary">{t('goals.achievable')}</Badge>
                 </div>
 
                 {isGuest ? (
                   <p className="text-sm text-muted-foreground">
-                    Sign up to start tracking your goals and connect them with your values
+                    {t('goals.signupPrompt')}
                   </p>
                 ) : (
                   <EnhancedAddGoalDialog>
                     <Button className="gap-2">
                       <Plus size={20} />
-                      Add Your First Goal
+                      {t('goals.addFirstGoal')}
                     </Button>
                   </EnhancedAddGoalDialog>
                 )}
@@ -91,40 +93,40 @@ export const Goals = () => {
               <Card className="glass-card p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Target className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">Smart Goals</h3>
+                  <h3 className="font-semibold text-foreground">{t('goals.smartGoals')}</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Create specific, measurable, achievable, relevant, and time-bound objectives
+                  {t('goals.smartGoalsDesc')}
                 </p>
               </Card>
 
               <Card className="glass-card p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Clock className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">Progress Tracking</h3>
+                  <h3 className="font-semibold text-foreground">{t('goals.progressTracking')}</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Monitor your progress with visual indicators and milestone tracking
+                  {t('goals.progressTrackingDesc')}
                 </p>
               </Card>
 
               <Card className="glass-card p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Tag className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">Categories</h3>
+                  <h3 className="font-semibold text-foreground">{t('goals.categories')}</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Organize goals by life areas and connect them with your core values
+                  {t('goals.categoriesDesc')}
                 </p>
               </Card>
 
               <Card className="glass-card p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Bell className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">Reminders</h3>
+                  <h3 className="font-semibold text-foreground">{t('goals.reminders')}</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Stay on track with smart notifications and deadline alerts
+                  {t('goals.remindersDesc')}
                 </p>
               </Card>
             </div>
