@@ -8,11 +8,6 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-export interface ChatbotResponse {
-  text: string;
-  error?: string;
-}
-
 export const useChatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,31 +28,27 @@ export const useChatbot = () => {
 
     setIsLoading(true);
     setError(null);
-
-    // Add user message
     addMessage(prompt, 'user');
 
     try {
-      // Call the Supabase Edge Function
+      // Call Supabase Edge Function
       const { data, error: functionError } = await supabase.functions.invoke(
         'Chatbot-gemini',
         {
           body: { prompt },
           headers: {
-            'Content-Type': 'application/json', // ensure JSON is sent
+            'Content-Type': 'application/json', // ensures POST is sent as JSON
           },
         }
       );
 
-      if (functionError) {
-        throw new Error(functionError.message);
-      }
+      if (functionError) throw new Error(functionError.message);
 
-      // Some Edge Functions return 'text' directly, some wrap in data
+      // Gemini function returns { text: string } on success
       const responseText =
-        (data && typeof data === 'object' && 'text' in data
+        data && typeof data === 'object' && 'text' in data
           ? (data as { text: string }).text
-          : 'No response received');
+          : 'No response received';
 
       addMessage(responseText, 'assistant');
     } catch (err) {
