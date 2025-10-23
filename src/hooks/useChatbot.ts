@@ -30,37 +30,50 @@ export const useChatbot = () => {
     setError(null);
     addMessage(prompt, 'user');
 
+    console.groupCollapsed('💬 Chatbot request');
+    console.log('Prompt sent:', prompt);
+
     try {
-      // Call Supabase Edge Function
+      console.log('Invoking Supabase function: chatbot-gemini');
+
       const { data, error: functionError } = await supabase.functions.invoke(
+        // ✅ ensure the function name matches your deployment (case-sensitive)
         'Chatbot-gemini',
         {
           body: { prompt },
           headers: {
-            'Content-Type': 'application/json', // ensures POST is sent as JSON
+            'Content-Type': 'application/json',
           },
         }
       );
 
+      console.log('Supabase function response:', { data, functionError });
+
       if (functionError) throw new Error(functionError.message);
 
-      // Gemini function returns { text: string } on success
       const responseText =
         data && typeof data === 'object' && 'text' in data
           ? (data as { text: string }).text
-          : 'No response received';
+          : '⚠️ No response text received from function';
+
+      console.log('Parsed Gemini response text:', responseText);
 
       addMessage(responseText, 'assistant');
+      console.log('✅ Assistant message added to chat');
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      const errorMessage = err instanceof Error ? err.message : 'Unexpected error';
+      console.error('❌ Error sending message:', errorMessage);
       setError(errorMessage);
       addMessage(`Sorry, I encountered an error: ${errorMessage}`, 'assistant');
     } finally {
       setIsLoading(false);
+      console.groupEnd();
     }
   };
 
   const clearChat = () => {
+    console.log('🧹 Clearing chat history');
     setMessages([]);
     setError(null);
   };
