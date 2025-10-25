@@ -165,14 +165,17 @@ export const useSelfDiscovery = () => {
 
     setSaving(true);
     try {
+      const currentData = lifeWheelData.find(d => d.area_name === areaName);
       const { error } = await supabase
         .from('life_wheel')
         .upsert({
           user_id: user.id,
           area_name: areaName,
-          current_score: lifeWheelData.find(d => d.area_name === areaName)?.current_score || 5,
-          desired_score: lifeWheelData.find(d => d.area_name === areaName)?.desired_score || 8,
+          current_score: currentData?.current_score || 5,
+          desired_score: currentData?.desired_score || 8,
           ...updates
+        }, {
+          onConflict: 'user_id,area_name'
         });
 
       if (error) throw error;
@@ -223,6 +226,8 @@ export const useSelfDiscovery = () => {
           user_id: user.id,
           value_name: valueName,
           selected
+        }, {
+          onConflict: 'user_id,value_name'
         });
 
       if (error) throw error;
@@ -262,6 +267,8 @@ export const useSelfDiscovery = () => {
           year: currentYear,
           ...visionData,
           ...updates
+        }, {
+          onConflict: 'user_id,year'
         });
 
       if (error) throw error;
