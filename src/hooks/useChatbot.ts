@@ -41,7 +41,7 @@ export const useChatbot = () => {
         // ✅ Ensure exact name (case-sensitive)
         'Chatbot-gemini',
         {
-          body: JSON.stringify(payload),
+          body: payload,
           headers: {
             'Content-Type': 'application/json',
           },
