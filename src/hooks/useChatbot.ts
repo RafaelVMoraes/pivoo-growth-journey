@@ -30,40 +30,45 @@ export const useChatbot = () => {
     setError(null);
     addMessage(prompt, 'user');
 
-    console.groupCollapsed('💬 Chatbot request');
+    console.groupCollapsed('💬 Chatbot Request');
     console.log('Prompt sent:', prompt);
 
     try {
-      console.log('Invoking Supabase function: chatbot-gemini');
+      const payload = { prompt };
+      console.log('📦 Payload to Supabase:', payload);
 
       const { data, error: functionError } = await supabase.functions.invoke(
-        // ✅ ensure the function name matches your deployment (case-sensitive)
+        // ✅ Ensure exact name (case-sensitive)
         'Chatbot-gemini',
         {
-          body: { prompt },
+          body: JSON.stringify(payload),
           headers: {
             'Content-Type': 'application/json',
           },
         }
       );
 
-      console.log('Supabase function response:', { data, functionError });
+      console.log('🟢 Supabase function response:', { data, functionError });
 
       if (functionError) throw new Error(functionError.message);
 
-      const responseText =
-        data && typeof data === 'object' && 'text' in data
-          ? (data as { text: string }).text
-          : '⚠️ No response text received from function';
+      // Gemini responses usually contain text in data.candidates[0].content.parts[0].text
+      let responseText = '⚠️ No response text received';
+      try {
+        responseText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          JSON.stringify(data);
+      } catch (err) {
+        console.warn('⚠️ Could not parse Gemini response:', err);
+      }
 
-      console.log('Parsed Gemini response text:', responseText);
+      console.log('💡 Parsed Gemini response text:', responseText);
 
       addMessage(responseText, 'assistant');
       console.log('✅ Assistant message added to chat');
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unexpected error';
-      console.error('❌ Error sending message:', errorMessage);
+      console.error('🔴 Error sending message:', errorMessage);
       setError(errorMessage);
       addMessage(`Sorry, I encountered an error: ${errorMessage}`, 'assistant');
     } finally {
