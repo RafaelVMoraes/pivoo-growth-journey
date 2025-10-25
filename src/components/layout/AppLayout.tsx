@@ -22,10 +22,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="relative min-h-screen w-full bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-40 w-full bg-card/80 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
           <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Pivoo
           </h1>
@@ -33,7 +33,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setDrawerOpen(true)}
-            className="p-2"
+            className="p-2 shrink-0"
           >
             <Menu size={20} />
           </Button>
@@ -41,7 +41,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="px-4 py-6">
+      <main className="w-full px-4 py-6 pb-24 max-w-7xl mx-auto">
         {children}
       </main>
 
