@@ -36,23 +36,24 @@ export const useChatbot = () => {
     try {
       const payload = { prompt };
       console.log('📦 Payload to Supabase:', payload);
-
+  
       const { data, error: functionError } = await supabase.functions.invoke(
-        // ✅ Ensure exact name (case-sensitive)
+        // ⚠️ Case-sensitive function name
         'Chatbot-gemini',
         {
-          body: payload,
+          // ✅ Must be JSON-stringified or Supabase sends empty body
+          body: JSON.stringify(payload),
           headers: {
             'Content-Type': 'application/json',
           },
         }
       );
-
-      console.log('🟢 Supabase function response:', { data, functionError });
-
+    
+      console.log('🟢 Supabase function raw response:', { data, functionError });
+    
       if (functionError) throw new Error(functionError.message);
-
-      // Gemini responses usually contain text in data.candidates[0].content.parts[0].text
+    
+      // 🧠 Parse Gemini response safely
       let responseText = '⚠️ No response text received';
       try {
         responseText =
@@ -61,20 +62,21 @@ export const useChatbot = () => {
       } catch (err) {
         console.warn('⚠️ Could not parse Gemini response:', err);
       }
-
+    
       console.log('💡 Parsed Gemini response text:', responseText);
-
+    
       addMessage(responseText, 'assistant');
       console.log('✅ Assistant message added to chat');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unexpected error';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Unexpected error';
       console.error('🔴 Error sending message:', errorMessage);
       setError(errorMessage);
       addMessage(`Sorry, I encountered an error: ${errorMessage}`, 'assistant');
     } finally {
       setIsLoading(false);
       console.groupEnd();
-    }
+    }    
   };
 
   const clearChat = () => {
