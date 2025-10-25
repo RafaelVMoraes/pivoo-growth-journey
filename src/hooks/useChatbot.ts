@@ -38,14 +38,9 @@ export const useChatbot = () => {
       console.log('📦 Payload to Supabase:', payload);
   
       const { data, error: functionError } = await supabase.functions.invoke(
-        // ⚠️ Case-sensitive function name
         'Chatbot-gemini',
         {
-          // ✅ Must be JSON-stringified or Supabase sends empty body
-          body: JSON.stringify(payload),
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          body: payload,
         }
       );
     
