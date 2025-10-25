@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -23,13 +23,26 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
     vision1y: true,
     vision3y: true
   });
+  const [localData, setLocalData] = useState<VisionData>(visionData);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    setLocalData(visionData);
+    setHasChanges(false);
+  }, [visionData]);
 
   const handleExpand = (type: 'vision1y' | 'vision3y') => {
     setExpanded(prev => ({ ...prev, [type]: !prev[type] }));
   };
 
   const handleChange = (field: keyof VisionData, value: string) => {
-    onUpdate({ [field]: value });
+    setLocalData(prev => ({ ...prev, [field]: value }));
+    setHasChanges(true);
+  };
+
+  const handleSave = () => {
+    onUpdate(localData);
+    setHasChanges(false);
   };
 
   return (
@@ -63,7 +76,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
               <Textarea
                 id="vision-1y"
                 placeholder={t('selfDiscovery.vision1YearPlaceholder')}
-                value={visionData.vision_1y || ''}
+                value={localData.vision_1y || ''}
                 onChange={(e) => handleChange('vision_1y', e.target.value)}
                 disabled={saving}
                 className="min-h-[100px] resize-none"
@@ -94,7 +107,7 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
               <Textarea
                 id="vision-3y"
                 placeholder={t('selfDiscovery.vision3YearPlaceholder')}
-                value={visionData.vision_3y || ''}
+                value={localData.vision_3y || ''}
                 onChange={(e) => handleChange('vision_3y', e.target.value)}
                 disabled={saving}
                 className="min-h-[100px] resize-none"
@@ -102,6 +115,20 @@ export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps
             </div>
           )}
         </div>
+
+        {/* Save Button */}
+        {hasChanges && (
+          <div className="pt-4">
+            <Button 
+              onClick={handleSave} 
+              disabled={saving}
+              className="w-full"
+            >
+              <Save size={16} className="mr-2" />
+              {saving ? t('profile.saving') : t('profile.save')}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

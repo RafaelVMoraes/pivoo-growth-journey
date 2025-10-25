@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Quote } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Quote, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface VisionData {
@@ -17,8 +19,22 @@ interface YearFocusProps {
 
 export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
   const { t } = useTranslation();
+  const [localData, setLocalData] = useState<VisionData>(visionData);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    setLocalData(visionData);
+    setHasChanges(false);
+  }, [visionData]);
+
   const handleChange = (field: keyof VisionData, value: string) => {
-    onUpdate({ [field]: value });
+    setLocalData(prev => ({ ...prev, [field]: value }));
+    setHasChanges(true);
+  };
+
+  const handleSave = () => {
+    onUpdate(localData);
+    setHasChanges(false);
   };
 
   const currentYear = new Date().getFullYear();
@@ -43,7 +59,7 @@ export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
           <Input
             id="word-year"
             placeholder={t('selfDiscovery.wordPlaceholder')}
-            value={visionData.word_year || ''}
+            value={localData.word_year || ''}
             onChange={(e) => handleChange('word_year', e.target.value)}
             disabled={saving}
             className="text-center text-lg font-medium bg-background/50"
@@ -58,7 +74,7 @@ export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
           <Input
             id="phrase-year"
             placeholder={t('selfDiscovery.phrasePlaceholder')}
-            value={visionData.phrase_year || ''}
+            value={localData.phrase_year || ''}
             onChange={(e) => handleChange('phrase_year', e.target.value)}
             disabled={saving}
             className="text-center text-lg font-medium bg-background/50"
@@ -66,20 +82,34 @@ export const YearFocus = ({ visionData, onUpdate, saving }: YearFocusProps) => {
         </div>
 
         {/* Display Quote Style */}
-        {(visionData.word_year || visionData.phrase_year) && (
+        {(localData.word_year || localData.phrase_year) && (
           <div className="mt-6 p-4 bg-primary/10 rounded-lg border-l-4 border-primary">
             <div className="text-center space-y-2">
-              {visionData.word_year && (
+              {localData.word_year && (
                 <div className="text-2xl font-bold text-primary">
-                  {visionData.word_year}
+                  {localData.word_year}
                 </div>
               )}
-              {visionData.phrase_year && (
+              {localData.phrase_year && (
                 <div className="text-lg font-medium text-muted-foreground italic">
-                  "{visionData.phrase_year}"
+                  "{localData.phrase_year}"
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Save Button */}
+        {hasChanges && (
+          <div className="pt-4">
+            <Button 
+              onClick={handleSave} 
+              disabled={saving}
+              className="w-full"
+            >
+              <Save size={16} className="mr-2" />
+              {saving ? t('profile.saving') : t('profile.save')}
+            </Button>
           </div>
         )}
       </CardContent>
