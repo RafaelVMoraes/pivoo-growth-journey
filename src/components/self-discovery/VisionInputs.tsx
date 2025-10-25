@@ -20,8 +20,8 @@ interface VisionInputsProps {
 export const VisionInputs = ({ visionData, onUpdate, saving }: VisionInputsProps) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<{vision1y: boolean, vision3y: boolean}>({
-    vision1y: false,
-    vision3y: false
+    vision1y: true,
+    vision3y: true
   });
 
   const handleExpand = (type: 'vision1y' | 'vision3y') => {
