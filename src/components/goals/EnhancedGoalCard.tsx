@@ -191,12 +191,17 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
             <div className="mb-4">
               <div className="flex flex-wrap gap-1.5">
                 {goal.related_values.map(value => (
-                  <Badge key={value} variant="secondary" className="text-xs px-2 py-1">
-                    ✨ {value}
+                  <Badge
+                    key={value}
+                    className="text-xs px-2 py-1 bg-blue-100 text-blue-800 
+                              dark:bg-blue-900 dark:text-blue-100 border-none"
+                  >
+                    {value}
                   </Badge>
                 ))}
               </div>
             </div>
+          
           )}
 
           {/* Sub-goals */}

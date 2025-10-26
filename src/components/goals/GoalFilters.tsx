@@ -110,7 +110,7 @@ export const GoalFilters = ({ goals, selectedFilters, onFilterChange }: GoalFilt
                     aria-pressed={isSelected}
                     onKeyDown={(e) => e.key === 'Enter' && toggleFilter(value)}
                   >
-                    ✨ {value} ({count})
+                    {value} ({count})
                   </Badge>
                 );
               })}
