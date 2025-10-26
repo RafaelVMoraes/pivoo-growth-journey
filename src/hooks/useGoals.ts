@@ -12,8 +12,9 @@ export interface Goal {
   target_date?: string;
   type: 'outcome' | 'process';
   status: 'active' | 'in_progress' | 'on_hold' | 'completed' | 'archived';
-  life_wheel_area?: string;
+  life_wheel_area?: string | string[];
   related_values?: string[];
+  parent_goal_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -56,12 +57,22 @@ export const useGoals = () => {
     if (isGuest || !user) return;
 
     try {
+      const insertData: any = {
+        title: goalData.title,
+        description: goalData.description,
+        category: goalData.category,
+        type: goalData.type,
+        status: goalData.status,
+        target_date: goalData.target_date,
+        life_wheel_area: goalData.life_wheel_area,
+        related_values: goalData.related_values,
+        parent_goal_id: goalData.parent_goal_id,
+        user_id: user.id,
+      };
+
       const { data, error } = await supabase
         .from('goals')
-        .insert({
-          ...goalData,
-          user_id: user.id,
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -88,9 +99,20 @@ export const useGoals = () => {
     if (isGuest || !user) return;
 
     try {
+      const cleanUpdates: any = {};
+      if (updates.title !== undefined) cleanUpdates.title = updates.title;
+      if (updates.description !== undefined) cleanUpdates.description = updates.description;
+      if (updates.category !== undefined) cleanUpdates.category = updates.category;
+      if (updates.type !== undefined) cleanUpdates.type = updates.type;
+      if (updates.status !== undefined) cleanUpdates.status = updates.status;
+      if (updates.target_date !== undefined) cleanUpdates.target_date = updates.target_date;
+      if (updates.life_wheel_area !== undefined) cleanUpdates.life_wheel_area = updates.life_wheel_area;
+      if (updates.related_values !== undefined) cleanUpdates.related_values = updates.related_values;
+      if (updates.parent_goal_id !== undefined) cleanUpdates.parent_goal_id = updates.parent_goal_id;
+
       const { data, error } = await supabase
         .from('goals')
-        .update(updates)
+        .update(cleanUpdates)
         .eq('id', goalId)
         .eq('user_id', user.id)
         .select()
@@ -147,12 +169,36 @@ export const useGoals = () => {
     fetchGoals();
   }, [user, isGuest]);
 
+  // Filter goals by selected filters (life areas or values)
+  const filterGoals = (filters: string[]) => {
+    if (filters.length === 0) return goals;
+    
+    return goals.filter(goal => {
+      const matchesArea = filters.some(filter => 
+        Array.isArray(goal.life_wheel_area) 
+          ? goal.life_wheel_area.includes(filter)
+          : goal.life_wheel_area === filter
+      );
+      const matchesValue = filters.some(filter => 
+        goal.related_values?.includes(filter)
+      );
+      return matchesArea || matchesValue;
+    });
+  };
+
+  // Get sub-goals for a parent goal
+  const getSubGoals = (parentGoalId: string) => {
+    return goals.filter(goal => goal.parent_goal_id === parentGoalId);
+  };
+
   return {
     goals,
     isLoading,
     createGoal,
     updateGoal,
     deleteGoal,
-    refetch: fetchGoals
+    refetch: fetchGoals,
+    filterGoals,
+    getSubGoals
   };
 };

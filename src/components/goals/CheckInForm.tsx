@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { Calendar, TrendingUp, CheckCircle } from 'lucide-react';
 import { useCheckIns } from '@/hooks/useCheckIns';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,6 +19,8 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
   const { t } = useTranslation();
   const [inputType, setInputType] = useState<'numeric' | 'checkbox' | 'percentage'>('checkbox');
   const [progressValue, setProgressValue] = useState('');
+  const [isDone, setIsDone] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,21 +28,23 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
     
     let value = progressValue;
     if (inputType === 'checkbox') {
-      value = 'true'; // Always true when submitted
+      value = isDone ? 'true' : 'false';
     }
 
-    if (!value.trim()) return;
+    if (!value.trim() && inputType !== 'checkbox') return;
 
     setIsSubmitting(true);
     try {
       await createCheckIn({
         goal_id: goalId,
         activity_id: activityId,
-        progress_value: value,
+        progress_value: inputType === 'checkbox' ? (isDone ? 'true' : 'false') : value,
         input_type: inputType,
-        date: new Date().toISOString()
+        date: new Date(selectedDate).toISOString()
       });
       setProgressValue('');
+      setIsDone(false);
+      setSelectedDate(new Date().toISOString().split('T')[0]);
     } catch (error) {
       // Error handled by hook
     } finally {
@@ -53,7 +57,7 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
       case 'percentage':
         return `${checkIn.progress_value}%`;
       case 'checkbox':
-        return checkIn.progress_value === 'true' ? `✓ ${t('checkin.done')}` : `✗ ${t('checkin.notDone')}`;
+        return checkIn.progress_value === 'true' ? '✓ Done' : '✗ Not Done';
       default:
         return checkIn.progress_value;
     }
@@ -71,76 +75,80 @@ export const CheckInForm = ({ goalId, activityId }: CheckInFormProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-foreground">{t('checkin.progressTracking')}</h4>
+        <h4 className="text-sm font-medium text-foreground">Progress Tracking</h4>
         <TrendingUp size={16} className="text-primary" />
       </div>
 
       {/* Check-in form */}
       <Card className="p-4 bg-accent/30">
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex gap-2">
-            <Select value={inputType} onValueChange={(value: any) => setInputType(value)}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="checkbox">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={14} />
-                    {t('checkin.doneNotDone')}
-                  </div>
-                </SelectItem>
-                <SelectItem value="numeric">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={14} />
-                    {t('checkin.number')}
-                  </div>
-                </SelectItem>
-                <SelectItem value="percentage">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} />
-                    {t('checkin.percentage')}
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm mb-2">Input Type</Label>
+              <Select value={inputType} onValueChange={(value: any) => setInputType(value)}>
+                <SelectTrigger className="min-h-[44px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="checkbox">Done / Not Done</SelectItem>
+                  <SelectItem value="numeric">Number</SelectItem>
+                  <SelectItem value="percentage">Percentage</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            {inputType === 'checkbox' ? (
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                <CheckCircle size={14} className="mr-1" />
-                {isSubmitting ? t('checkin.recording') : t('checkin.markAsDone')}
-              </Button>
-            ) : (
-              <>
-                <Input
-                  value={progressValue}
-                  onChange={(e) => setProgressValue(e.target.value)}
-                  placeholder={inputType === 'percentage' ? '0-100' : t('checkin.enterValue')}
-                  type={inputType === 'percentage' ? 'number' : 'text'}
-                  min={inputType === 'percentage' ? '0' : undefined}
-                  max={inputType === 'percentage' ? '100' : undefined}
-                  className="flex-1"
-                />
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !progressValue.trim()}
-                >
-                  {isSubmitting ? t('checkin.recording') : t('checkin.record')}
-                </Button>
-              </>
-            )}
+            <div>
+              <Label htmlFor="date" className="text-sm mb-2">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="min-h-[44px]"
+              />
+            </div>
           </div>
+
+          {inputType === 'checkbox' ? (
+            <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+              <Label htmlFor="done-toggle" className="text-sm font-medium">Mark as done</Label>
+              <Switch
+                id="done-toggle"
+                checked={isDone}
+                onCheckedChange={setIsDone}
+                className="min-h-[24px]"
+              />
+            </div>
+          ) : (
+            <div>
+              <Label className="text-sm mb-2">Value</Label>
+              <Input
+                value={progressValue}
+                onChange={(e) => setProgressValue(e.target.value)}
+                placeholder={inputType === 'percentage' ? '0-100' : 'Enter value'}
+                type="number"
+                min={inputType === 'percentage' ? '0' : undefined}
+                max={inputType === 'percentage' ? '100' : undefined}
+                className="min-h-[44px]"
+              />
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || (inputType !== 'checkbox' && !progressValue.trim())}
+            className="w-full min-h-[44px]"
+          >
+            <CheckCircle size={14} className="mr-2" />
+            {isSubmitting ? 'Recording...' : 'Record Progress'}
+          </Button>
         </form>
       </Card>
 
       {/* Recent check-ins */}
       {checkIns.length > 0 && (
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('checkin.recentProgress')}</Label>
+          <Label className="text-sm font-medium">Recent Progress</Label>
           <div className="space-y-2 max-h-32 overflow-y-auto">
             {checkIns.slice(0, 5).map(checkIn => (
               <div key={checkIn.id} className="flex items-center justify-between text-sm p-2 bg-accent/20 rounded">

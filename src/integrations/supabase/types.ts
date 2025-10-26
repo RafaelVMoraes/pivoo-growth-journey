@@ -19,6 +19,8 @@ export type Database = {
           created_at: string
           description: string
           frequency: string | null
+          frequency_type: string | null
+          frequency_value: number | null
           goal_id: string
           id: string
           status: string | null
@@ -29,6 +31,8 @@ export type Database = {
           created_at?: string
           description: string
           frequency?: string | null
+          frequency_type?: string | null
+          frequency_value?: number | null
           goal_id: string
           id?: string
           status?: string | null
@@ -39,6 +43,8 @@ export type Database = {
           created_at?: string
           description?: string
           frequency?: string | null
+          frequency_type?: string | null
+          frequency_value?: number | null
           goal_id?: string
           id?: string
           status?: string | null
@@ -112,7 +118,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          life_wheel_area: string | null
+          life_wheel_area: string[] | null
+          parent_goal_id: string | null
           related_values: string[] | null
           status: string | null
           target_date: string | null
@@ -126,7 +133,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          life_wheel_area?: string | null
+          life_wheel_area?: string[] | null
+          parent_goal_id?: string | null
           related_values?: string[] | null
           status?: string | null
           target_date?: string | null
@@ -140,7 +148,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          life_wheel_area?: string | null
+          life_wheel_area?: string[] | null
+          parent_goal_id?: string | null
           related_values?: string[] | null
           status?: string | null
           target_date?: string | null
@@ -149,7 +158,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "goals_parent_goal_id_fkey"
+            columns: ["parent_goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       history: {
         Row: {

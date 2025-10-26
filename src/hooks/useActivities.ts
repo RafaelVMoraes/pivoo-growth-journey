@@ -9,6 +9,8 @@ export interface Activity {
   user_id: string;
   description: string;
   frequency?: string;
+  frequency_type?: 'daily' | 'weekly' | 'monthly' | 'custom';
+  frequency_value?: number;
   status: 'active' | 'completed';
   created_at: string;
   updated_at: string;

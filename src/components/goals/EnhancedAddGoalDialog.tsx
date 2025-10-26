@@ -13,6 +13,7 @@ import { useActivities } from '@/hooks/useActivities';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useToast } from '@/hooks/use-toast';
+import { FrequencySelector } from './FrequencySelector';
 
 interface EnhancedAddGoalDialogProps {
   children: React.ReactNode;
@@ -21,6 +22,8 @@ interface EnhancedAddGoalDialogProps {
 interface ActivityInput {
   description: string;
   frequency: string;
+  frequencyType: 'daily' | 'weekly' | 'monthly' | 'custom';
+  frequencyValue?: number;
 }
 
 export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) => {
@@ -29,18 +32,19 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form data
-  const [selectedArea, setSelectedArea] = useState('');
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [goalType, setGoalType] = useState<'outcome' | 'process'>('outcome');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [targetDate, setTargetDate] = useState('');
+  const [parentGoalId, setParentGoalId] = useState('');
   const [status, setStatus] = useState<'active' | 'in_progress' | 'on_hold' | 'completed' | 'archived'>('active');
-  const [activities, setActivities] = useState<ActivityInput[]>([{ description: '', frequency: '' }]);
+  const [activities, setActivities] = useState<ActivityInput[]>([{ description: '', frequency: '', frequencyType: 'weekly', frequencyValue: 3 }]);
   const [trackingType, setTrackingType] = useState<'numeric' | 'checkbox' | 'percentage'>('checkbox');
 
-  const { createGoal } = useGoals();
+  const { createGoal, goals } = useGoals();
   const { createActivity } = useActivities();
   const { lifeWheelData, valuesData } = useSelfDiscovery();
   const { t } = useTranslation();
@@ -51,20 +55,21 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
 
   const resetForm = () => {
     setStep(1);
-    setSelectedArea('');
+    setSelectedAreas([]);
     setSelectedValues([]);
     setGoalType('outcome');
     setTitle('');
     setDescription('');
     setCategory('');
     setTargetDate('');
+    setParentGoalId('');
     setStatus('active');
-    setActivities([{ description: '', frequency: '' }]);
+    setActivities([{ description: '', frequency: '', frequencyType: 'weekly', frequencyValue: 3 }]);
     setTrackingType('checkbox');
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !selectedArea) return;
+    if (!title.trim() || selectedAreas.length === 0) return;
 
     setIsSubmitting(true);
     try {
@@ -75,8 +80,9 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
         type: goalType,
         status,
         target_date: targetDate || undefined,
-        life_wheel_area: selectedArea,
+        life_wheel_area: selectedAreas,
         related_values: selectedValues.length > 0 ? selectedValues : undefined,
+        parent_goal_id: parentGoalId || undefined,
       };
 
       const newGoal = await createGoal(goalData);
@@ -89,6 +95,8 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
             goal_id: newGoal.id,
             description: activity.description.trim(),
             frequency: activity.frequency.trim() || undefined,
+            frequency_type: activity.frequencyType,
+            frequency_value: activity.frequencyValue,
             status: 'active',
           });
         }
@@ -122,7 +130,7 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
   };
 
   const addActivity = () => {
-    setActivities([...activities, { description: '', frequency: '' }]);
+    setActivities([...activities, { description: '', frequency: '', frequencyType: 'weekly', frequencyValue: 3 }]);
   };
 
   const removeActivity = (index: number) => {
@@ -131,14 +139,25 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
     }
   };
 
-  const updateActivity = (index: number, field: keyof ActivityInput, value: string) => {
+  const updateActivity = (index: number, field: keyof ActivityInput, value: string | number) => {
     setActivities(prev => prev.map((activity, i) => 
       i === index ? { ...activity, [field]: value } : activity
     ));
   };
 
-  const canProceedFromStep1 = title.trim() && selectedArea && goalType;
-  const canSubmit = title.trim() && selectedArea;
+  const toggleArea = (area: string) => {
+    setSelectedAreas(prev => 
+      prev.includes(area)
+        ? prev.filter(a => a !== area)
+        : [...prev, area]
+    );
+  };
+
+  const canProceedFromStep1 = title.trim() && selectedAreas.length > 0 && goalType;
+  const canSubmit = title.trim() && selectedAreas.length > 0;
+
+  // Get available parent goals (only top-level goals, not sub-goals)
+  const availableParentGoals = goals.filter(g => !g.parent_goal_id);
 
   const renderStep1 = () => (
     <div className="space-y-6">
@@ -191,15 +210,37 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
           />
         </div>
 
+        <div className="space-y-2 md:col-span-2">
+          <Label className="text-base font-medium">{t('goal.lifeArea')} * (select one or more)</Label>
+          <div className="flex flex-wrap gap-2">
+            {lifeWheelAreas.map(area => (
+              <Badge
+                key={area}
+                variant={selectedAreas.includes(area) ? "default" : "outline"}
+                className="cursor-pointer hover:scale-105 transition-transform min-h-[44px] px-4 text-sm"
+                onClick={() => toggleArea(area)}
+                role="button"
+                tabIndex={0}
+                aria-pressed={selectedAreas.includes(area)}
+                onKeyDown={(e) => e.key === 'Enter' && toggleArea(area)}
+              >
+                {area}
+                {selectedAreas.includes(area) && <X size={12} className="ml-2" />}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-2">
-          <Label>{t('goal.lifeArea')} *</Label>
-          <Select value={selectedArea} onValueChange={setSelectedArea}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('goal.selectArea')} />
+          <Label htmlFor="parent-goal">{t('goal.parentGoal')} (optional)</Label>
+          <Select value={parentGoalId} onValueChange={setParentGoalId}>
+            <SelectTrigger className="min-h-[44px]">
+              <SelectValue placeholder="None - standalone goal" />
             </SelectTrigger>
             <SelectContent>
-              {lifeWheelAreas.map(area => (
-                <SelectItem key={area} value={area}>{area}</SelectItem>
+              <SelectItem value="">None - standalone goal</SelectItem>
+              {availableParentGoals.map(goal => (
+                <SelectItem key={goal.id} value={goal.id}>{goal.title}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -260,36 +301,41 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
 
       <div className="space-y-4">
         {activities.map((activity, index) => (
-          <div key={index} className="flex gap-3 items-end">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor={`activity-${index}`}>{t('goal.activity')} {index + 1}</Label>
-              <Input
-                id={`activity-${index}`}
-                placeholder={t('goal.activityPlaceholder')}
-                value={activity.description}
-                onChange={(e) => updateActivity(index, 'description', e.target.value)}
-              />
+          <div key={index} className="space-y-3 p-4 border rounded-lg bg-accent/10">
+            <div className="flex items-center justify-between">
+              <Label className="font-medium">Activity {index + 1}</Label>
+              {activities.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeActivity(index)}
+                  className="h-8 w-8 p-0"
+                  aria-label="Remove activity"
+                >
+                  <X size={16} />
+                </Button>
+              )}
             </div>
-            <div className="w-32 space-y-2">
-              <Label htmlFor={`frequency-${index}`}>{t('goal.frequency')}</Label>
-              <Input
-                id={`frequency-${index}`}
-                placeholder={t('goal.frequencyPlaceholder')}
-                value={activity.frequency}
-                onChange={(e) => updateActivity(index, 'frequency', e.target.value)}
-              />
-            </div>
-            {activities.length > 1 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => removeActivity(index)}
-                className="mb-0"
-              >
-                <X size={16} />
-              </Button>
-            )}
+            
+            <Input
+              id={`activity-${index}`}
+              placeholder={t('goal.activityPlaceholder')}
+              value={activity.description}
+              onChange={(e) => updateActivity(index, 'description', e.target.value)}
+              className="min-h-[44px]"
+            />
+            
+            <FrequencySelector
+              value={{
+                type: activity.frequencyType,
+                value: activity.frequencyValue
+              }}
+              onChange={(freq) => {
+                updateActivity(index, 'frequencyType', freq.type);
+                updateActivity(index, 'frequencyValue', freq.value || 0);
+              }}
+            />
           </div>
         ))}
         

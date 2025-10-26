@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X, Edit2, Check, RotateCcw } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, X, Edit2, Check, RotateCcw, Loader2 } from 'lucide-react';
 import { useActivities, Activity } from '@/hooks/useActivities';
+import { FrequencySelector } from './FrequencySelector';
 
 interface ActivityListProps {
   goalId: string;
@@ -12,10 +14,19 @@ interface ActivityListProps {
 
 export const ActivityList = ({ goalId }: ActivityListProps) => {
   const { activities, isLoading, createActivity, updateActivity, deleteActivity } = useActivities(goalId);
-  const [newActivity, setNewActivity] = useState({ description: '', frequency: '' });
+  const [newActivity, setNewActivity] = useState({ 
+    description: '', 
+    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'custom',
+    frequencyValue: 3
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingActivity, setEditingActivity] = useState({ description: '', frequency: '' });
+  const [editingActivity, setEditingActivity] = useState({ 
+    description: '', 
+    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'custom',
+    frequencyValue: 3
+  });
   const [isAdding, setIsAdding] = useState(false);
+  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
 
   const handleAddActivity = async () => {
     if (!newActivity.description.trim()) return;
@@ -24,10 +35,11 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
       await createActivity({
         goal_id: goalId,
         description: newActivity.description.trim(),
-        frequency: newActivity.frequency.trim() || undefined,
+        frequency_type: newActivity.frequencyType,
+        frequency_value: newActivity.frequencyValue,
         status: 'active'
       });
-      setNewActivity({ description: '', frequency: '' });
+      setNewActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
       setIsAdding(false);
     } catch (error) {
       // Error handled by hook
@@ -38,7 +50,8 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     setEditingId(activity.id);
     setEditingActivity({
       description: activity.description,
-      frequency: activity.frequency || ''
+      frequencyType: activity.frequency_type || 'weekly',
+      frequencyValue: activity.frequency_value || 3
     });
   };
 
@@ -48,22 +61,49 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     try {
       await updateActivity(editingId, {
         description: editingActivity.description.trim(),
-        frequency: editingActivity.frequency.trim() || undefined
+        frequency_type: editingActivity.frequencyType,
+        frequency_value: editingActivity.frequencyValue
       });
       setEditingId(null);
-      setEditingActivity({ description: '', frequency: '' });
+      setEditingActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
     } catch (error) {
       // Error handled by hook
     }
   };
 
   const handleToggleStatus = async (activity: Activity) => {
-    const newStatus = activity.status === 'active' ? 'completed' : 'active';
-    await updateActivity(activity.id, { status: newStatus });
+    // Prevent multiple clicks
+    if (updatingIds.has(activity.id)) return;
+
+    setUpdatingIds(prev => new Set(prev).add(activity.id));
+    
+    try {
+      const newStatus = activity.status === 'active' ? 'completed' : 'active';
+      await updateActivity(activity.id, { status: newStatus });
+    } finally {
+      setUpdatingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(activity.id);
+        return newSet;
+      });
+    }
+  };
+
+  const formatFrequency = (activity: Activity) => {
+    if (activity.frequency_type === 'daily') return 'Daily';
+    if (activity.frequency_type === 'weekly') return `${activity.frequency_value || 1}x/week`;
+    if (activity.frequency_type === 'monthly') return `${activity.frequency_value || 1}x/month`;
+    return activity.frequency || 'Custom';
   };
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading activities...</div>;
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+    );
   }
 
   return (
@@ -74,7 +114,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
           size="sm"
           variant="outline"
           onClick={() => setIsAdding(true)}
-          className="text-xs h-7"
+          className="text-xs h-9 min-h-[44px] px-4"
         >
           <Plus size={12} className="mr-1" />
           Add Activity
@@ -83,28 +123,43 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
 
       {/* Add new activity form */}
       {isAdding && (
-        <div className="bg-accent/50 p-3 rounded-lg space-y-2">
+        <div className="bg-accent/50 p-4 rounded-lg space-y-3 border border-border">
           <Input
-            placeholder="Activity description"
+            placeholder="Activity description (e.g., Run 30 min)"
             value={newActivity.description}
             onChange={(e) => setNewActivity(prev => ({ ...prev, description: e.target.value }))}
-            className="text-sm"
+            className="text-sm min-h-[44px]"
           />
-          <Input
-            placeholder="Frequency (e.g., 3x/week, daily)"
-            value={newActivity.frequency}
-            onChange={(e) => setNewActivity(prev => ({ ...prev, frequency: e.target.value }))}
-            className="text-sm"
+          <FrequencySelector
+            value={{
+              type: newActivity.frequencyType,
+              value: newActivity.frequencyValue
+            }}
+            onChange={(freq) => setNewActivity(prev => ({
+              ...prev,
+              frequencyType: freq.type,
+              frequencyValue: freq.value || 3
+            }))}
           />
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleAddActivity} disabled={!newActivity.description.trim()}>
+            <Button 
+              size="sm" 
+              onClick={handleAddActivity} 
+              disabled={!newActivity.description.trim()}
+              className="min-h-[44px]"
+            >
               <Check size={12} className="mr-1" />
               Add
             </Button>
-            <Button size="sm" variant="outline" onClick={() => {
-              setIsAdding(false);
-              setNewActivity({ description: '', frequency: '' });
-            }}>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => {
+                setIsAdding(false);
+                setNewActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
+              }}
+              className="min-h-[44px]"
+            >
               <X size={12} className="mr-1" />
               Cancel
             </Button>
@@ -114,81 +169,111 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
 
       {/* Activities list */}
       <div className="space-y-2">
-        {activities.map(activity => (
-          <div key={activity.id} className="flex items-start gap-3 p-3 bg-accent/30 rounded-lg">
-            <Checkbox
-              checked={activity.status === 'completed'}
-              onCheckedChange={() => handleToggleStatus(activity)}
-              className="mt-0.5"
-            />
-            
-            <div className="flex-1 min-w-0">
-              {editingId === activity.id ? (
-                <div className="space-y-2">
-                  <Input
-                    value={editingActivity.description}
-                    onChange={(e) => setEditingActivity(prev => ({ ...prev, description: e.target.value }))}
-                    className="text-sm"
-                  />
-                  <Input
-                    placeholder="Frequency (optional)"
-                    value={editingActivity.frequency}
-                    onChange={(e) => setEditingActivity(prev => ({ ...prev, frequency: e.target.value }))}
-                    className="text-sm"
-                  />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveEdit}>
-                      <Check size={12} className="mr-1" />
-                      Save
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
-                      <X size={12} className="mr-1" />
-                      Cancel
-                    </Button>
+        {activities.map(activity => {
+          const isUpdating = updatingIds.has(activity.id);
+          
+          return (
+            <div key={activity.id} className="flex items-start gap-3 p-3 bg-accent/30 rounded-lg">
+              <div className="relative">
+                <Checkbox
+                  checked={activity.status === 'completed'}
+                  onCheckedChange={() => handleToggleStatus(activity)}
+                  className="mt-0.5 min-h-[20px] min-w-[20px]"
+                  disabled={isUpdating}
+                />
+                {isUpdating && (
+                  <Loader2 size={14} className="absolute top-0.5 left-0.5 animate-spin text-primary" />
+                )}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                {editingId === activity.id ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={editingActivity.description}
+                      onChange={(e) => setEditingActivity(prev => ({ ...prev, description: e.target.value }))}
+                      className="text-sm min-h-[44px]"
+                    />
+                    <FrequencySelector
+                      value={{
+                        type: editingActivity.frequencyType,
+                        value: editingActivity.frequencyValue
+                      }}
+                      onChange={(freq) => setEditingActivity(prev => ({
+                        ...prev,
+                        frequencyType: freq.type,
+                        frequencyValue: freq.value || 3
+                      }))}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveEdit} className="min-h-[44px]">
+                        <Check size={12} className="mr-1" />
+                        Save
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => setEditingId(null)}
+                        className="min-h-[44px]"
+                      >
+                        <X size={12} className="mr-1" />
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <p className={`text-sm ${activity.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                    {activity.description}
-                  </p>
-                  {activity.frequency && (
+                ) : (
+                  <>
+                    <p className={`text-sm ${activity.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                      {activity.description}
+                    </p>
                     <Badge variant="secondary" className="text-xs mt-1">
                       <RotateCcw size={10} className="mr-1" />
-                      {activity.frequency}
+                      {formatFrequency(activity)}
                     </Badge>
-                  )}
-                </>
+                  </>
+                )}
+              </div>
+
+              {editingId !== activity.id && (
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleEditActivity(activity)}
+                    className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 flex items-center justify-center hover:bg-accent rounded-md transition-colors"
+                    aria-label="Edit activity"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => deleteActivity(activity.id)}
+                    className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                    aria-label="Delete activity"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               )}
             </div>
-
-            {editingId !== activity.id && (
-              <div className="flex gap-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleEditActivity(activity)}
-                  className="h-6 w-6 p-0"
-                >
-                  <Edit2 size={12} />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => deleteActivity(activity.id)}
-                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                >
-                  <X size={12} />
-                </Button>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
         
         {activities.length === 0 && !isAdding && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No activities yet. Add some concrete actions to achieve your goal!
-          </p>
+          <div className="text-center py-8 px-4 bg-accent/20 rounded-lg border-2 border-dashed border-border">
+            <p className="text-sm text-muted-foreground mb-3">
+              No activities yet — let's add some concrete actions!
+            </p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Try adding: "Run 30 min 3x/week" or "Read 10 pages daily"
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsAdding(true)}
+              className="min-h-[44px]"
+            >
+              <Plus size={14} className="mr-2" />
+              Add your first activity
+            </Button>
+          </div>
         )}
       </div>
     </div>

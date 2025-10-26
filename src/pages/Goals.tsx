@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,12 +7,17 @@ import { Target, Plus, Clock, CheckCircle, Tag, Bell } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { EnhancedAddGoalDialog } from '@/components/goals/EnhancedAddGoalDialog';
 import { EnhancedGoalCard } from '@/components/goals/EnhancedGoalCard';
+import { GoalFilters } from '@/components/goals/GoalFilters';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export const Goals = () => {
   const { user, isGuest } = useAuth();
-  const { goals, isLoading } = useGoals();
+  const { goals, isLoading, filterGoals } = useGoals();
   const { t } = useTranslation();
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  const filteredGoals = filterGoals(selectedFilters);
+  const topLevelGoals = filteredGoals.filter(g => !g.parent_goal_id);
 
   if (isLoading) {
     return (
@@ -24,7 +30,7 @@ export const Goals = () => {
     );
   }
 
-  const hasGoals = goals.length > 0;
+  const hasGoals = topLevelGoals.length > 0;
 
   return (
     <div className="min-h-screen bg-background p-4 pb-20">
@@ -47,10 +53,19 @@ export const Goals = () => {
           </p>
         </div>
 
+        {/* Filters */}
+        {goals.length > 0 && (
+          <GoalFilters
+            goals={goals}
+            selectedFilters={selectedFilters}
+            onFilterChange={setSelectedFilters}
+          />
+        )}
+
         {/* Goals List or Empty State */}
         {hasGoals ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {goals.map(goal => (
+            {topLevelGoals.map(goal => (
               <EnhancedGoalCard key={goal.id} goal={goal} />
             ))}
           </div>
