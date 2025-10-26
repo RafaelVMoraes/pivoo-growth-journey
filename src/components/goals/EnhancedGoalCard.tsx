@@ -144,12 +144,16 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-2">
                 {getTypeIcon()}
-                <span className="text-lg">{getTypeEmoji()}</span>
+                <span className="text-lg inline-block p-1 rounded bg-gray-100 dark:bg-gray-800 align-middle">
+                  {getTypeEmoji()}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg text-foreground leading-tight mb-1">{goal.title}</h3>
+                <h3 className="font-semibold text-lg text-foreground leading-tight mb-1">
+                  {goal.title}
+                </h3>
                 {goal.description && (
                   <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
                     {goal.description}
@@ -157,6 +161,7 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
                 )}
               </div>
             </div>
+
             <div className="flex items-center gap-2 ml-3">
               <Badge className={`${getStatusColor()} font-medium border`}>
                 {t(`goal.status${goal.status.charAt(0).toUpperCase() + goal.status.slice(1).replace('_', '')}`)}
