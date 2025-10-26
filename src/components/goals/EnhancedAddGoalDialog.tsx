@@ -275,17 +275,16 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
           <div className="flex flex-wrap gap-2">
             {availableValues.map(value => (
               <Badge
-              key={value}
-              onClick={() => toggleValue(value)}
-              className={cn(
-                "cursor-pointer hover:scale-105 transition-transform px-3 py-1 text-xs font-medium border",
-                selectedValues.includes(value)
-                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 border-blue-300 dark:border-blue-700"
-                  : "bg-transparent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600"
-              )}
-            >
-              {value}
-            </Badge>            
+                key={value}
+                variant={selectedValues.includes(value) ? "default" : "outline"}
+                className="cursor-pointer hover:scale-105 transition-transform px-3 py-1"
+                onClick={() => toggleValue(value)}
+              >
+                ✨ {value}
+                {selectedValues.includes(value) && (
+                  <X size={12} className="ml-2" />
+                )}
+              </Badge>
             ))}
           </div>
         </div>

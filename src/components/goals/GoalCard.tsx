@@ -102,17 +102,12 @@ export const GoalCard = ({ goal }: GoalCardProps) => {
 
         {goal.related_values && goal.related_values.length > 0 && (
           <div className="flex flex-wrap gap-1">
-          {goal.related_values.map(value => (
-            <Badge
-              key={value}
-              variant="secondary"
-              className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 border-none"
-            >
-              {value}
-            </Badge>
-          ))}
-        </div>
-        
+            {goal.related_values.map(value => (
+              <Badge key={value} variant="outline" className="text-xs">
+                ✨ {value}
+              </Badge>
+            ))}
+          </div>
         )}
       </div>
 
