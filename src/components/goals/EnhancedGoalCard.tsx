@@ -4,21 +4,22 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, ChevronDown, ChevronUp, Lightbulb, Flame, TrendingUp } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, Maximize2, Lightbulb, Flame, TrendingUp, MoreVertical, Edit2, Archive, Trash2 } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ActivityList } from './ActivityList';
-import { CheckInForm } from './CheckInForm';
 import { ReflectionLayer } from './ReflectionLayer';
+import { GoalDetailsDialog } from './GoalDetailsDialog';
+import { EditGoalDialog } from './EditGoalDialog';
 
 interface EnhancedGoalCardProps {
   goal: Goal;
 }
 
 export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const { updateGoal, getSubGoals } = useGoals();
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const { updateGoal, deleteGoal, getSubGoals } = useGoals();
   const { t } = useTranslation();
 
   const subGoals = getSubGoals(goal.id);
@@ -35,14 +36,22 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
     return goal.type === 'outcome' ? '🎯' : '🔄';
   };
 
-  const handleStatusChange = async () => {
-    const newStatus = goal.status === 'active' 
-      ? 'completed' 
-      : goal.status === 'completed' 
-        ? 'active' 
-        : 'active';
+  const handleMarkComplete = async () => {
+    await updateGoal(goal.id, { status: 'completed' });
+  };
 
-    await updateGoal(goal.id, { status: newStatus });
+  const handleReactivate = async () => {
+    await updateGoal(goal.id, { status: 'active' });
+  };
+
+  const handleArchive = async () => {
+    await updateGoal(goal.id, { status: 'archived' });
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this goal?')) {
+      await deleteGoal(goal.id);
+    }
   };
 
   const getStatusIcon = () => {
@@ -138,8 +147,8 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   };
 
   return (
-    <Card className="glass-card hover:scale-[1.01] transition-all duration-200 overflow-hidden">
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+    <>
+      <Card className="glass-card hover:scale-[1.01] transition-all duration-200 overflow-hidden">
         <div className="p-5">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
@@ -161,14 +170,36 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
               <Badge className={`${getStatusColor()} font-medium border`}>
                 {t(`goal.status${goal.status.charAt(0).toUpperCase() + goal.status.slice(1).replace('_', '')}`)}
               </Badge>
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="p-2 hover:bg-accent/50 rounded-md transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label={isExpanded ? "Collapse" : "Expand"}
-                aria-expanded={isExpanded}
-              >
-                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="p-2 hover:bg-accent/50 rounded-md transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    aria-label="Goal actions"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+                    <Edit2 size={14} className="mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleArchive}>
+                    <Archive size={14} className="mr-2" />
+                    Archive
+                  </DropdownMenuItem>
+                  {goal.status === 'completed' && (
+                    <DropdownMenuItem onClick={handleReactivate}>
+                      <Play size={14} className="mr-2" />
+                      Reactivate
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                    <Trash2 size={14} className="mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -191,8 +222,8 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
             <div className="mb-4">
               <div className="flex flex-wrap gap-1.5">
                 {goal.related_values.map(value => (
-                  <Badge key={value} variant="secondary" className="text-xs px-2 py-1">
-                    ✨ {value}
+                  <Badge key={value} variant="outline" className="text-xs px-2 py-1 bg-background border-2 font-medium">
+                    {value}
                   </Badge>
                 ))}
               </div>
@@ -218,23 +249,26 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
 
           {/* Actions */}
           <div className="flex gap-2">
+            {goal.status !== 'completed' && (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={handleMarkComplete}
+                className="flex-1 h-11 min-h-[44px]"
+              >
+                <CheckCircle2 size={14} className="mr-1.5" />
+                {t('goal.markComplete')}
+              </Button>
+            )}
+            
             <Button
               size="sm"
-              variant={goal.status === 'completed' ? 'outline' : 'default'}
-              onClick={handleStatusChange}
+              variant="outline"
+              onClick={() => setIsDetailsOpen(true)}
               className="flex-1 h-11 min-h-[44px]"
             >
-              {goal.status === 'completed' ? (
-                <>
-                  <Play size={14} className="mr-1.5" />
-                  {t('goal.reactivate')}
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 size={14} className="mr-1.5" />
-                  {t('goal.markComplete')}
-                </>
-              )}
+              <Maximize2 size={14} className="mr-1.5" />
+              View Details
             </Button>
             
             <ReflectionLayer goalTitle={goal.title}>
@@ -244,15 +278,11 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
             </ReflectionLayer>
           </div>
         </div>
+      </Card>
 
-        {/* Expanded content */}
-        <CollapsibleContent>
-          <div className="border-t bg-accent/10 p-5 space-y-6">
-            <ActivityList goalId={goal.id} />
-            <CheckInForm goalId={goal.id} />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+      {/* Dialogs */}
+      <GoalDetailsDialog goal={goal} isOpen={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} />
+      <EditGoalDialog goal={goal} isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} />
+    </>
   );
 };

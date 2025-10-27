@@ -32,6 +32,12 @@ export const GoalFilters = ({ goals, selectedFilters, onFilterChange }: GoalFilt
     ).length;
   };
 
+  // Sort life areas by count (descending)
+  const sortedLifeAreas = [...lifeAreas].sort((a, b) => areaCount(b) - areaCount(a));
+
+  // Sort values by count (descending)
+  const sortedValues = [...selectedValues].sort((a, b) => valueCount(b) - valueCount(a));
+
   const toggleFilter = (filter: string) => {
     if (selectedFilters.includes(filter)) {
       onFilterChange(selectedFilters.filter(f => f !== filter));
@@ -61,12 +67,12 @@ export const GoalFilters = ({ goals, selectedFilters, onFilterChange }: GoalFilt
       </div>
 
       {/* Life Areas */}
-      {lifeAreas.length > 0 && (
+      {sortedLifeAreas.length > 0 && (
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-2">Life Areas</p>
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex gap-2 pb-2">
-              {lifeAreas.map(area => {
+              {sortedLifeAreas.map(area => {
                 const count = areaCount(area);
                 const isSelected = selectedFilters.includes(area);
                 return (
@@ -91,26 +97,26 @@ export const GoalFilters = ({ goals, selectedFilters, onFilterChange }: GoalFilt
       )}
 
       {/* Values */}
-      {selectedValues.length > 0 && (
+      {sortedValues.length > 0 && (
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-2">Values</p>
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex gap-2 pb-2">
-              {selectedValues.map(value => {
+              {sortedValues.map(value => {
                 const count = valueCount(value);
                 const isSelected = selectedFilters.includes(value);
                 return (
                   <Badge
                     key={value}
-                    variant={isSelected ? "default" : "secondary"}
-                    className="cursor-pointer hover:scale-105 transition-transform min-h-[44px] px-4 text-sm"
+                    variant={isSelected ? "default" : "outline"}
+                    className="cursor-pointer hover:scale-105 transition-transform min-h-[44px] px-4 text-sm font-medium bg-background border-2"
                     onClick={() => toggleFilter(value)}
                     role="button"
                     tabIndex={0}
                     aria-pressed={isSelected}
                     onKeyDown={(e) => e.key === 'Enter' && toggleFilter(value)}
                   >
-                    ✨ {value} ({count})
+                    {value} ({count})
                   </Badge>
                 );
               })}

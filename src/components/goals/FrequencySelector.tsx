@@ -5,18 +5,16 @@ import { Label } from '@/components/ui/label';
 
 interface FrequencySelectorProps {
   value: {
-    type: 'daily' | 'weekly' | 'monthly' | 'custom';
+    type: 'daily' | 'weekly' | 'monthly';
     value?: number;
   };
-  onChange: (frequency: { type: 'daily' | 'weekly' | 'monthly' | 'custom'; value?: number }) => void;
+  onChange: (frequency: { type: 'daily' | 'weekly' | 'monthly'; value?: number }) => void;
 }
 
 export const FrequencySelector = ({ value, onChange }: FrequencySelectorProps) => {
-  const handleTypeChange = (type: 'daily' | 'weekly' | 'monthly' | 'custom') => {
+  const handleTypeChange = (type: 'daily' | 'weekly' | 'monthly') => {
     if (type === 'daily') {
       onChange({ type, value: 1 });
-    } else if (type === 'custom') {
-      onChange({ type, value: undefined });
     } else {
       onChange({ type, value: value.value || 1 });
     }
@@ -38,12 +36,11 @@ export const FrequencySelector = ({ value, onChange }: FrequencySelectorProps) =
             <SelectItem value="daily">Daily</SelectItem>
             <SelectItem value="weekly">Weekly</SelectItem>
             <SelectItem value="monthly">Monthly</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
-      {value.type !== 'daily' && value.type !== 'custom' && (
+      {value.type !== 'daily' && (
         <div className="w-20">
           <Label className="text-sm">Times</Label>
           <Input
@@ -54,18 +51,6 @@ export const FrequencySelector = ({ value, onChange }: FrequencySelectorProps) =
             onChange={(e) => handleValueChange(parseInt(e.target.value) || 1)}
             className="min-h-[44px]"
             aria-label="Number of times"
-          />
-        </div>
-      )}
-
-      {value.type === 'custom' && (
-        <div className="flex-1">
-          <Label className="text-sm">Custom (e.g., "3x/week")</Label>
-          <Input
-            type="text"
-            placeholder="Enter custom frequency"
-            className="min-h-[44px]"
-            aria-label="Custom frequency"
           />
         </div>
       )}

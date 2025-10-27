@@ -16,13 +16,13 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
   const { activities, isLoading, createActivity, updateActivity, deleteActivity } = useActivities(goalId);
   const [newActivity, setNewActivity] = useState({ 
     description: '', 
-    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'custom',
+    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly',
     frequencyValue: 3
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState({ 
     description: '', 
-    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'custom',
+    frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly',
     frequencyValue: 3
   });
   const [isAdding, setIsAdding] = useState(false);
@@ -48,9 +48,10 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
 
   const handleEditActivity = (activity: Activity) => {
     setEditingId(activity.id);
+    const validType = activity.frequency_type === 'custom' ? 'weekly' : (activity.frequency_type || 'weekly');
     setEditingActivity({
       description: activity.description,
-      frequencyType: activity.frequency_type || 'weekly',
+      frequencyType: validType as 'daily' | 'weekly' | 'monthly',
       frequencyValue: activity.frequency_value || 3
     });
   };

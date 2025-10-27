@@ -22,7 +22,7 @@ interface EnhancedAddGoalDialogProps {
 interface ActivityInput {
   description: string;
   frequency: string;
-  frequencyType: 'daily' | 'weekly' | 'monthly' | 'custom';
+  frequencyType: 'daily' | 'weekly' | 'monthly';
   frequencyValue?: number;
 }
 
@@ -277,10 +277,10 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
               <Badge
                 key={value}
                 variant={selectedValues.includes(value) ? "default" : "outline"}
-                className="cursor-pointer hover:scale-105 transition-transform px-3 py-1"
+                className="cursor-pointer hover:scale-105 transition-transform px-3 py-1 bg-background border-2 font-medium"
                 onClick={() => toggleValue(value)}
               >
-                ✨ {value}
+                {value}
                 {selectedValues.includes(value) && (
                   <X size={12} className="ml-2" />
                 )}
