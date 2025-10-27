@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Goal } from '@/hooks/useGoals';
 import { ActivityList } from './ActivityList';
-import { CheckInForm } from './CheckInForm';
 import { Target, RotateCcw } from 'lucide-react';
 
 interface GoalDetailsDialogProps {
@@ -35,7 +33,6 @@ export const GoalDetailsDialog = ({ goal, isOpen, onClose }: GoalDetailsDialogPr
           )}
 
           <ActivityList goalId={goal.id} />
-          <CheckInForm goalId={goal.id} />
         </div>
       </DialogContent>
     </Dialog>

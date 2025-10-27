@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Goal } from '@/hooks/useGoals';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, Maximize2, Lightbulb, Flame, TrendingUp, MoreVertical, Edit2, Archive, Trash2 } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCheckIns } from '@/hooks/useCheckIns';
+import { useActivities } from '@/hooks/useActivities';
 import { ReflectionLayer } from './ReflectionLayer';
 import { GoalDetailsDialog } from './GoalDetailsDialog';
 import { EditGoalDialog } from './EditGoalDialog';
@@ -19,10 +21,74 @@ interface EnhancedGoalCardProps {
 export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const { updateGoal, deleteGoal, getSubGoals } = useGoals();
+  const { updateGoal, deleteGoal, getSubGoals, refetch } = useGoals();
   const { t } = useTranslation();
+  const { checkIns } = useCheckIns(goal.id);
+  const { activities } = useActivities(goal.id);
 
   const subGoals = getSubGoals(goal.id);
+
+  // Calculate progress from check-ins
+  const [progressPercentage, setProgressPercentage] = useState(0);
+  const [streakDays, setStreakDays] = useState(0);
+  const [completionRate, setCompletionRate] = useState(0);
+
+  useEffect(() => {
+    if (goal.type === 'outcome') {
+      // For outcome goals, calculate based on sub-goals completion
+      if (subGoals.length > 0) {
+        const completedSubGoals = subGoals.filter(sg => sg.status === 'completed').length;
+        setProgressPercentage(Math.round((completedSubGoals / subGoals.length) * 100));
+      } else {
+        // If no sub-goals, use check-ins count as progress indicator
+        setProgressPercentage(Math.min(checkIns.length * 5, 100));
+      }
+    } else {
+      // For process goals, calculate streak and completion rate
+      const sortedCheckIns = [...checkIns].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      // Calculate streak
+      let streak = 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (let i = 0; i < sortedCheckIns.length; i++) {
+        const checkInDate = new Date(sortedCheckIns[i].date);
+        checkInDate.setHours(0, 0, 0, 0);
+        const daysDiff = Math.floor((today.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff === streak) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      setStreakDays(streak);
+
+      // Calculate completion rate for last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentCheckIns = checkIns.filter(ci => new Date(ci.date) >= thirtyDaysAgo);
+      
+      // Expected check-ins based on activities frequency
+      let expectedCheckIns = 0;
+      activities.forEach(activity => {
+        if (activity.frequency_type === 'daily') {
+          expectedCheckIns += 30;
+        } else if (activity.frequency_type === 'weekly') {
+          expectedCheckIns += (activity.frequency_value || 1) * 4;
+        } else if (activity.frequency_type === 'monthly') {
+          expectedCheckIns += (activity.frequency_value || 1);
+        }
+      });
+      
+      if (expectedCheckIns > 0) {
+        setCompletionRate(Math.min(Math.round((recentCheckIns.length / expectedCheckIns) * 100), 100));
+      }
+    }
+  }, [goal.type, checkIns, subGoals, activities]);
 
   const getTypeIcon = () => {
     return goal.type === 'outcome' ? (
@@ -115,9 +181,9 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Progress to target</span>
-            <span className="font-medium text-foreground">45%</span>
+            <span className="font-medium text-foreground">{progressPercentage}%</span>
           </div>
-          <Progress value={45} className="h-2" />
+          <Progress value={progressPercentage} className="h-2" />
           {goal.target_date && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={14} />
@@ -133,13 +199,15 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
           <div className="flex items-center gap-2">
             <Flame size={20} className="text-orange-500" />
             <div>
-              <div className="text-sm font-medium text-foreground">7 day streak</div>
-              <div className="text-xs text-muted-foreground">Keep it up!</div>
+              <div className="text-sm font-medium text-foreground">{streakDays} day streak</div>
+              <div className="text-xs text-muted-foreground">{streakDays > 0 ? 'Keep it up!' : 'Start today!'}</div>
             </div>
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <TrendingUp size={16} className="text-success" />
-            <span className="text-sm font-medium text-success">85% completion</span>
+            <TrendingUp size={16} className={completionRate >= 70 ? "text-success" : "text-warning"} />
+            <span className={`text-sm font-medium ${completionRate >= 70 ? "text-success" : "text-warning"}`}>
+              {completionRate}% completion
+            </span>
           </div>
         </div>
       );
@@ -249,7 +317,7 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
 
           {/* Actions */}
           <div className="flex gap-2">
-            {goal.status !== 'completed' && (
+            {goal.status !== 'completed' && goal.type === 'outcome' && (
               <Button
                 size="sm"
                 variant="default"
@@ -265,14 +333,14 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
               size="sm"
               variant="outline"
               onClick={() => setIsDetailsOpen(true)}
-              className="flex-1 h-11 min-h-[44px]"
+              className={`${goal.status !== 'completed' && goal.type === 'outcome' ? 'flex-1' : 'flex-[2]'} h-11 min-h-[44px] whitespace-nowrap overflow-hidden`}
             >
-              <Maximize2 size={14} className="mr-1.5" />
-              View Details
+              <Maximize2 size={14} className="mr-1.5 flex-shrink-0" />
+              <span className="truncate">View Details</span>
             </Button>
             
             <ReflectionLayer goalTitle={goal.title}>
-              <Button size="sm" variant="outline" className="px-3 h-11 min-h-[44px] min-w-[44px]" aria-label="Reflect on goal">
+              <Button size="sm" variant="outline" className="px-3 h-11 min-h-[44px] min-w-[44px] flex-shrink-0" aria-label="Reflect on goal">
                 <Lightbulb size={14} />
               </Button>
             </ReflectionLayer>
@@ -281,8 +349,8 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
       </Card>
 
       {/* Dialogs */}
-      <GoalDetailsDialog goal={goal} isOpen={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} />
-      <EditGoalDialog goal={goal} isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} />
+      <GoalDetailsDialog goal={goal} isOpen={isDetailsOpen} onClose={() => { setIsDetailsOpen(false); refetch(); }} />
+      <EditGoalDialog goal={goal} isOpen={isEditOpen} onClose={() => { setIsEditOpen(false); refetch(); }} />
     </>
   );
 };
