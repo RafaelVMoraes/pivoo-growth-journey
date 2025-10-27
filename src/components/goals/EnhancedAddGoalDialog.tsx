@@ -233,12 +233,12 @@ export const EnhancedAddGoalDialog = ({ children }: EnhancedAddGoalDialogProps) 
 
         <div className="space-y-2">
           <Label htmlFor="parent-goal">{t('goal.parentGoal')} (optional)</Label>
-          <Select value={parentGoalId} onValueChange={setParentGoalId}>
+          <Select value={parentGoalId || 'none'} onValueChange={(value) => setParentGoalId(value === 'none' ? '' : value)}>
             <SelectTrigger className="min-h-[44px]">
               <SelectValue placeholder="None - standalone goal" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None - standalone goal</SelectItem>
+              <SelectItem value="none">None - standalone goal</SelectItem>
               {availableParentGoals.map(goal => (
                 <SelectItem key={goal.id} value={goal.id}>{goal.title}</SelectItem>
               ))}
