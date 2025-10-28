@@ -1,165 +1,74 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Target, Plus, Clock, CheckCircle, Tag, Bell } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import { EnhancedAddGoalDialog } from '@/components/goals/EnhancedAddGoalDialog';
-import { EnhancedGoalCard } from '@/components/goals/EnhancedGoalCard';
-import { GoalFilters } from '@/components/goals/GoalFilters';
-import { useTranslation } from '@/hooks/useTranslation';
+import { RedesignedAddGoalDialog } from '@/components/goals/RedesignedAddGoalDialog';
+import { ViewToggle } from '@/components/goals/ViewToggle';
+import { StatusTabs } from '@/components/goals/StatusTabs';
+import { HighLevelView } from '@/components/goals/HighLevelView';
+import { TasksView } from '@/components/goals/TasksView';
+
+type ViewMode = 'high-level' | 'tasks';
+type StatusFilter = 'active' | 'completed' | 'archived';
 
 export const Goals = () => {
-  const { user, isGuest } = useAuth();
-  const { goals, isLoading, filterGoals } = useGoals();
-  const { t } = useTranslation();
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const { isGuest } = useAuth();
+  const { goals, isLoading } = useGoals();
+  const [viewMode, setViewMode] = useState<ViewMode>('high-level');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
 
-  const filteredGoals = filterGoals(selectedFilters);
-  const topLevelGoals = filteredGoals.filter(g => !g.parent_goal_id);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background p-4 pb-20 flex items-center justify-center">
-        <div className="text-center">
-          <Target size={48} className="mx-auto mb-4 text-primary animate-spin" />
-          <p className="text-muted-foreground">{t('goals.loadingGoals')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const hasGoals = topLevelGoals.length > 0;
+  // Filter goals by status
+  const filteredGoals = goals.filter(goal => {
+    if (statusFilter === 'active') return goal.status === 'active' || goal.status === 'in_progress';
+    if (statusFilter === 'completed') return goal.status === 'completed';
+    if (statusFilter === 'archived') return goal.status === 'archived';
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background p-4 pb-20">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-foreground">{t('goals.title')}</h1>
+      <div className="max-w-6xl mx-auto">
+        {/* Top Section */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-foreground">Goals</h1>
+          <div className="flex items-center gap-3">
             {!isGuest && (
-              <EnhancedAddGoalDialog>
+              <RedesignedAddGoalDialog>
                 <Button className="gap-2">
                   <Plus size={20} />
-                  {t('goals.addGoal')}
+                  Add Goal
                 </Button>
-              </EnhancedAddGoalDialog>
+              </RedesignedAddGoalDialog>
             )}
+            <ViewToggle value={viewMode} onChange={setViewMode} />
           </div>
-          <p className="text-muted-foreground">
-            {t('goals.subtitle')}
-          </p>
         </div>
 
-        {/* Filters */}
-        {goals.length > 0 && (
-          <GoalFilters
-            goals={goals}
-            selectedFilters={selectedFilters}
-            onFilterChange={setSelectedFilters}
-          />
-        )}
+        {/* Status Tabs */}
+        <StatusTabs value={statusFilter} onChange={setStatusFilter} goals={goals} />
 
-        {/* Goals List or Empty State */}
-        {hasGoals ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {topLevelGoals.map(goal => (
-              <EnhancedGoalCard key={goal.id} goal={goal} />
-            ))}
-          </div>
-        ) : (
-          <>
-            {/* Empty State */}
-            <div className="text-center py-12">
-              <div className="gradient-card p-8 rounded-2xl mb-6">
-                <Target size={64} className="mx-auto mb-4 text-primary" />
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {t('goals.setFirstGoal')}
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  {t('goals.transformAspiration')}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">{t('goals.timeBound')}</Badge>
-                  <Badge variant="secondary">{t('goals.specific')}</Badge>
-                  <Badge variant="secondary">{t('goals.achievable')}</Badge>
-                </div>
-
-                {isGuest ? (
-                  <p className="text-sm text-muted-foreground">
-                    {t('goals.signupPrompt')}
-                  </p>
-                ) : (
-                  <EnhancedAddGoalDialog>
-                    <Button className="gap-2">
-                      <Plus size={20} />
-                      {t('goals.addFirstGoal')}
-                    </Button>
-                  </EnhancedAddGoalDialog>
-                )}
-              </div>
-            </div>
-
-            {/* Feature Preview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="glass-card p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Target className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">{t('goals.smartGoals')}</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  {t('goals.smartGoalsDesc')}
-                </p>
-              </Card>
-
-              <Card className="glass-card p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Clock className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">{t('goals.progressTracking')}</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  {t('goals.progressTrackingDesc')}
-                </p>
-              </Card>
-
-              <Card className="glass-card p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Tag className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">{t('goals.categories')}</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  {t('goals.categoriesDesc')}
-                </p>
-              </Card>
-
-              <Card className="glass-card p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Bell className="text-primary" size={24} />
-                  <h3 className="font-semibold text-foreground">{t('goals.reminders')}</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  {t('goals.remindersDesc')}
-                </p>
-              </Card>
-            </div>
-          </>
-        )}
+        {/* Content Views */}
+        <div className="mt-6">
+          {viewMode === 'high-level' ? (
+            <HighLevelView goals={filteredGoals} isLoading={isLoading} />
+          ) : (
+            <TasksView goals={filteredGoals} isLoading={isLoading} />
+          )}
+        </div>
       </div>
 
       {/* Floating Action Button */}
       {!isGuest && (
         <div className="fixed bottom-20 right-4 z-50">
-          <EnhancedAddGoalDialog>
+          <RedesignedAddGoalDialog>
             <Button 
               size="lg" 
               className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
             >
               <Plus size={24} />
             </Button>
-          </EnhancedAddGoalDialog>
+          </RedesignedAddGoalDialog>
         </div>
       )}
     </div>
