@@ -31,7 +31,9 @@ export const Goals = () => {
       <div className="max-w-6xl mx-auto">
         {/* Top Section */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-foreground">Goals</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            {viewMode === 'high-level' ? '🎯 Goals' : '✅ Tasks'}
+          </h1>
           <div className="flex items-center gap-3">
             {!isGuest && (
               <RedesignedAddGoalDialog>

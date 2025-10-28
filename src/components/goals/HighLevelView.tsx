@@ -1,11 +1,22 @@
 import { useState } from 'react';
-import { Goal } from '@/hooks/useGoals';
+import { Goal, useGoals } from '@/hooks/useGoals';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Target, RotateCcw, Eye } from 'lucide-react';
+import { ChevronDown, ChevronRight, Target, RotateCcw, Eye, Edit, Trash2 } from 'lucide-react';
 import { GoalDetailsDialog } from './GoalDetailsDialog';
+import { EditGoalDialog } from './EditGoalDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface HighLevelViewProps {
   goals: Goal[];
@@ -110,55 +121,109 @@ export const HighLevelView = ({ goals, isLoading }: HighLevelViewProps) => {
 
 // Mini goal card for high-level view
 const GoalMiniCard = ({ goal, onViewDetails }: { goal: Goal; onViewDetails: () => void }) => {
+  const { deleteGoal } = useGoals();
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
   // Simple progress calculation (can be enhanced)
   const progress = goal.status === 'completed' ? 100 : 0;
 
+  const handleDelete = async () => {
+    await deleteGoal(goal.id);
+    setShowDeleteDialog(false);
+  };
+
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {goal.type === 'outcome' ? (
-              <Target size={18} className="text-primary flex-shrink-0" />
-            ) : (
-              <RotateCcw size={18} className="text-primary flex-shrink-0" />
-            )}
-            <h4 className="font-medium text-foreground truncate">{goal.title}</h4>
+    <>
+      <Card className="p-4 hover:shadow-md transition-shadow">
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {goal.type === 'outcome' ? (
+                <Target size={18} className="text-primary flex-shrink-0" />
+              ) : (
+                <RotateCcw size={18} className="text-primary flex-shrink-0" />
+              )}
+              <h4 className="font-medium text-foreground truncate">{goal.title}</h4>
+            </div>
+          </div>
+
+          {/* Life Areas */}
+          {goal.life_wheel_area && (
+            <div className="flex flex-wrap gap-1">
+              {(Array.isArray(goal.life_wheel_area) ? goal.life_wheel_area : [goal.life_wheel_area]).map(area => (
+                <Badge key={area} variant="outline" className="text-xs bg-background border-2">
+                  {area}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Progress */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="font-medium text-foreground">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onViewDetails}
+              className="flex-1 min-h-[44px]"
+            >
+              <Eye size={14} className="mr-2" />
+              View
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowEditDialog(true)}
+              className="min-h-[44px] px-3"
+            >
+              <Edit size={14} />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              className="min-h-[44px] px-3 text-destructive hover:text-destructive"
+            >
+              <Trash2 size={14} />
+            </Button>
           </div>
         </div>
+      </Card>
 
-        {/* Life Areas */}
-        {goal.life_wheel_area && (
-          <div className="flex flex-wrap gap-1">
-            {(Array.isArray(goal.life_wheel_area) ? goal.life_wheel_area : [goal.life_wheel_area]).map(area => (
-              <Badge key={area} variant="outline" className="text-xs bg-background border-2">
-                {area}
-              </Badge>
-            ))}
-          </div>
-        )}
+      {showEditDialog && (
+        <EditGoalDialog
+          goal={goal}
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+        />
+      )}
 
-        {/* Progress */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium text-foreground">{progress}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        {/* Actions */}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onViewDetails}
-          className="w-full min-h-[44px]"
-        >
-          <Eye size={14} className="mr-2" />
-          View Details
-        </Button>
-      </div>
-    </Card>
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Goal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{goal.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };

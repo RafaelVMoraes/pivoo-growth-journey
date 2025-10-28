@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Goal } from '@/hooks/useGoals';
-import { useActivities } from '@/hooks/useActivities';
+import { useActivities, Activity } from '@/hooks/useActivities';
 import { useCheckIns } from '@/hooks/useCheckIns';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Target, RotateCcw, Calendar } from 'lucide-react';
-import { format, isToday, isThisWeek, isThisMonth, isFuture, parseISO } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Target, RotateCcw, Calendar, AlertCircle } from 'lucide-react';
+import { format, isToday, isThisWeek, isThisMonth, isFuture, parseISO, startOfDay, startOfWeek, startOfMonth, isPast } from 'date-fns';
 
 interface TasksViewProps {
   goals: Goal[];
@@ -21,7 +22,11 @@ interface Task {
   description: string;
   dueDate?: Date;
   frequency?: string;
+  frequencyType?: string;
+  frequencyValue?: number;
+  lifeArea?: string;
   isCompleted: boolean;
+  isLate: boolean;
 }
 
 export const TasksView = ({ goals, isLoading }: TasksViewProps) => {
@@ -37,15 +42,24 @@ export const TasksView = ({ goals, isLoading }: TasksViewProps) => {
   const allTasks: Task[] = [];
 
   goals.forEach(goal => {
+    const lifeArea = Array.isArray(goal.life_wheel_area) 
+      ? goal.life_wheel_area[0] 
+      : goal.life_wheel_area || 'Other';
+
     // For milestone goals with target dates
     if (goal.target_date) {
+      const dueDate = parseISO(goal.target_date);
+      const isLate = isPast(dueDate) && goal.status !== 'completed';
+      
       allTasks.push({
         id: `goal-${goal.id}`,
         goalId: goal.id,
         goalTitle: goal.title,
         description: goal.title,
-        dueDate: parseISO(goal.target_date),
+        dueDate,
+        lifeArea,
         isCompleted: goal.status === 'completed',
+        isLate,
       });
     }
 
@@ -159,27 +173,37 @@ const TaskSection = ({ title, tasks }: { title: string; tasks: Task[] }) => {
               />
               
               <div className="flex-1 min-w-0">
-                <p className={`font-medium text-foreground ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
-                  {task.description}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className="text-xs bg-background">
-                    <Target size={10} className="mr-1" />
-                    {task.goalTitle}
-                  </Badge>
-                  {task.frequency && (
+                <div className="flex items-center gap-2">
+                  <p className={`font-medium text-foreground ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+                    {task.description}
+                  </p>
+                  {task.isLate && !isCompleted && (
+                    <Badge variant="destructive" className="text-xs">
+                      <AlertCircle size={10} className="mr-1" />
+                      Late
+                    </Badge>
+                  )}
+                  {task.lifeArea && (
+                    <Badge variant="outline" className="text-xs bg-accent/50">
+                      {task.lifeArea}
+                    </Badge>
+                  )}
+                </div>
+                {task.frequency && (
+                  <div className="flex items-center gap-2 mt-1">
                     <Badge variant="outline" className="text-xs bg-background border-2">
                       <RotateCcw size={10} className="mr-1" />
                       {task.frequency}
                     </Badge>
-                  )}
-                  {task.dueDate && (
-                    <span className="text-xs text-muted-foreground">
-                      {format(task.dueDate, 'MMM d')}
-                    </span>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
+
+              {task.dueDate && (
+                <span className="text-xs text-muted-foreground">
+                  {format(task.dueDate, 'MMM d')}
+                </span>
+              )}
             </div>
           );
         })}

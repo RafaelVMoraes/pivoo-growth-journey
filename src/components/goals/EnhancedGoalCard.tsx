@@ -338,12 +338,6 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
               <Maximize2 size={14} className="mr-1.5 flex-shrink-0" />
               <span className="truncate">View Details</span>
             </Button>
-            
-            <ReflectionLayer goalTitle={goal.title}>
-              <Button size="sm" variant="outline" className="px-3 h-11 min-h-[44px] min-w-[44px] flex-shrink-0" aria-label="Reflect on goal">
-                <Lightbulb size={14} />
-              </Button>
-            </ReflectionLayer>
           </div>
         </div>
       </Card>
