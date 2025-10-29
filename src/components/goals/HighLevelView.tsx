@@ -21,9 +21,10 @@ import {
 interface HighLevelViewProps {
   goals: Goal[];
   isLoading: boolean;
+  onRefresh?: () => void;
 }
 
-export const HighLevelView = ({ goals, isLoading }: HighLevelViewProps) => {
+export const HighLevelView = ({ goals, isLoading, onRefresh }: HighLevelViewProps) => {
   const [expandedAreas, setExpandedAreas] = useState<Set<string>>(new Set());
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
@@ -99,6 +100,7 @@ export const HighLevelView = ({ goals, isLoading }: HighLevelViewProps) => {
                       key={goal.id} 
                       goal={goal} 
                       onViewDetails={() => setSelectedGoal(goal)}
+                      onRefresh={onRefresh}
                     />
                   ))}
                 </div>
@@ -120,7 +122,7 @@ export const HighLevelView = ({ goals, isLoading }: HighLevelViewProps) => {
 };
 
 // Mini goal card for high-level view
-const GoalMiniCard = ({ goal, onViewDetails }: { goal: Goal; onViewDetails: () => void }) => {
+const GoalMiniCard = ({ goal, onViewDetails, onRefresh }: { goal: Goal; onViewDetails: () => void; onRefresh?: () => void }) => {
   const { deleteGoal } = useGoals();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -131,6 +133,7 @@ const GoalMiniCard = ({ goal, onViewDetails }: { goal: Goal; onViewDetails: () =
   const handleDelete = async () => {
     await deleteGoal(goal.id);
     setShowDeleteDialog(false);
+    onRefresh?.();
   };
 
   return (
@@ -204,7 +207,10 @@ const GoalMiniCard = ({ goal, onViewDetails }: { goal: Goal; onViewDetails: () =
         <EditGoalDialog
           goal={goal}
           isOpen={showEditDialog}
-          onClose={() => setShowEditDialog(false)}
+          onClose={() => {
+            setShowEditDialog(false);
+            onRefresh?.();
+          }}
         />
       )}
 

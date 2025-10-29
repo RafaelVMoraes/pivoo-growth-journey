@@ -14,7 +14,7 @@ type StatusFilter = 'active' | 'completed' | 'archived';
 
 export const Goals = () => {
   const { isGuest } = useAuth();
-  const { goals, isLoading } = useGoals();
+  const { goals, isLoading, refetch } = useGoals();
   const [viewMode, setViewMode] = useState<ViewMode>('high-level');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
 
@@ -53,7 +53,7 @@ export const Goals = () => {
         {/* Content Views */}
         <div className="mt-6">
           {viewMode === 'high-level' ? (
-            <HighLevelView goals={filteredGoals} isLoading={isLoading} />
+            <HighLevelView goals={filteredGoals} isLoading={isLoading} onRefresh={refetch} />
           ) : (
             <TasksView goals={filteredGoals} isLoading={isLoading} />
           )}

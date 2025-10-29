@@ -8,9 +8,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useGoals } from '@/hooks/useGoals';
-import { useActivities } from '@/hooks/useActivities';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Target, RotateCcw, X, Plus, Lightbulb } from 'lucide-react';
 import { FrequencySelector } from './FrequencySelector';
 import { ReflectionLayer } from './ReflectionLayer';
@@ -24,6 +25,9 @@ interface ActivityInput {
   frequency: string;
   frequencyType: 'daily' | 'weekly' | 'monthly' | 'custom';
   frequencyValue?: number;
+  timeOfDay?: 'morning' | 'afternoon' | 'night';
+  daysOfWeek?: string[];
+  dayOfMonth?: number;
 }
 
 export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogProps) => {
@@ -43,9 +47,36 @@ export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogPro
   const [reflection, setReflection] = useState({ surface: '', deeper: '', identity: '' });
   const [createdGoalId, setCreatedGoalId] = useState<string | null>(null);
 
-  const { createGoal } = useGoals();
+  const { createGoal, refetch } = useGoals();
   const { lifeWheelData } = useSelfDiscovery();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Helper function to create activities after goal creation
+  const createActivitiesForGoal = async (goalId: string) => {
+    if (activities.length === 0) return;
+    
+    for (const activity of activities) {
+      if (activity.description.trim()) {
+        try {
+          await supabase.from('activities').insert({
+            goal_id: goalId,
+            user_id: user?.id,
+            description: activity.description,
+            frequency: activity.frequency,
+            frequency_type: activity.frequencyType,
+            frequency_value: activity.frequencyValue,
+            time_of_day: activity.timeOfDay,
+            days_of_week: activity.daysOfWeek,
+            day_of_month: activity.dayOfMonth,
+            status: 'active',
+          });
+        } catch (actErr) {
+          console.error('Failed to create activity:', actErr);
+        }
+      }
+    }
+  };
 
   const resetForm = () => {
     setStep(1);
@@ -72,7 +103,10 @@ export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogPro
       description: '', 
       frequency: '', 
       frequencyType: 'custom',
-      frequencyValue: undefined 
+      frequencyValue: undefined,
+      timeOfDay: undefined,
+      daysOfWeek: undefined,
+      dayOfMonth: undefined
     }]);
   };
 
@@ -123,26 +157,11 @@ export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogPro
         setCreatedGoalId(createdGoal.id);
         
         // Create activities if any
-        if (activities.length > 0) {
-          const { createActivity } = useActivities(createdGoal.id);
-          for (const activity of activities) {
-            if (activity.description.trim()) {
-              try {
-                await createActivity({
-                  goal_id: createdGoal.id,
-                  description: activity.description,
-                  frequency: activity.frequency,
-                  frequency_type: activity.frequencyType,
-                  frequency_value: activity.frequencyValue,
-                  status: 'active',
-                });
-              } catch (actErr) {
-                console.error('Failed to create activity:', actErr);
-              }
-            }
-          }
-        }
+        await createActivitiesForGoal(createdGoal.id);
       }
+
+      // Refresh the goals list to show the new goal immediately
+      await refetch();
 
       toast({
         title: "Success!",
@@ -365,12 +384,28 @@ export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogPro
                             <FrequencySelector
                               value={{ 
                                 type: activity.frequencyType === 'custom' ? 'daily' : activity.frequencyType,
-                                value: activity.frequencyValue 
+                                value: activity.frequencyValue,
+                                timeOfDay: activity.timeOfDay,
+                                daysOfWeek: activity.daysOfWeek,
+                                dayOfMonth: activity.dayOfMonth
                               }}
                               onChange={(freq) => {
                                 updateActivity(index, 'frequencyType', freq.type);
                                 updateActivity(index, 'frequencyValue', freq.value);
-                                updateActivity(index, 'frequency', `${freq.value || 1}x ${freq.type}`);
+                                updateActivity(index, 'timeOfDay', freq.timeOfDay);
+                                updateActivity(index, 'daysOfWeek', freq.daysOfWeek);
+                                updateActivity(index, 'dayOfMonth', freq.dayOfMonth);
+                                
+                                // Build frequency string
+                                let freqStr = `${freq.value || 1}x ${freq.type}`;
+                                if (freq.type === 'daily' && freq.timeOfDay) {
+                                  freqStr += ` (${freq.timeOfDay})`;
+                                } else if (freq.type === 'weekly' && freq.daysOfWeek && freq.daysOfWeek.length > 0) {
+                                  freqStr += ` (${freq.daysOfWeek.join(', ')})`;
+                                } else if (freq.type === 'monthly' && freq.dayOfMonth) {
+                                  freqStr += ` (day ${freq.dayOfMonth})`;
+                                }
+                                updateActivity(index, 'frequency', freqStr);
                               }}
                             />
                           </div>

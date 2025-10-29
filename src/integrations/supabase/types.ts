@@ -17,6 +17,8 @@ export type Database = {
       activities: {
         Row: {
           created_at: string
+          day_of_month: number | null
+          days_of_week: string[] | null
           description: string
           frequency: string | null
           frequency_type: string | null
@@ -24,11 +26,14 @@ export type Database = {
           goal_id: string
           id: string
           status: string | null
+          time_of_day: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          day_of_month?: number | null
+          days_of_week?: string[] | null
           description: string
           frequency?: string | null
           frequency_type?: string | null
@@ -36,11 +41,14 @@ export type Database = {
           goal_id: string
           id?: string
           status?: string | null
+          time_of_day?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          day_of_month?: number | null
+          days_of_week?: string[] | null
           description?: string
           frequency?: string | null
           frequency_type?: string | null
@@ -48,6 +56,7 @@ export type Database = {
           goal_id?: string
           id?: string
           status?: string | null
+          time_of_day?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -111,6 +120,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cron_job_registry: {
+        Row: {
+          created_at: string | null
+          id: number
+          job_id: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          job_id?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          job_id?: string | null
+          name?: string
+        }
+        Relationships: []
       }
       goals: {
         Row: {
@@ -234,6 +264,74 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_schedules: {
+        Row: {
+          active: boolean | null
+          cadence: string
+          created_at: string | null
+          cron_expr: string | null
+          id: string
+          name: string
+          next_run: string | null
+          payload: Json
+        }
+        Insert: {
+          active?: boolean | null
+          cadence: string
+          created_at?: string | null
+          cron_expr?: string | null
+          id?: string
+          name: string
+          next_run?: string | null
+          payload: Json
+        }
+        Update: {
+          active?: boolean | null
+          cadence?: string
+          created_at?: string | null
+          cron_expr?: string | null
+          id?: string
+          name?: string
+          next_run?: string | null
+          payload?: Json
+        }
+        Relationships: []
+      }
+      notifications_queue: {
+        Row: {
+          created_at: string | null
+          id: string
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+          schedule_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          schedule_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          schedule_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_queue_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "notification_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -267,6 +365,27 @@ export type Database = {
           notifications_enabled?: boolean | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          subscription: Json
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          subscription: Json
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          subscription?: Json
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -338,7 +457,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      enqueue_due_notifications: { Args: never; Returns: undefined }
+      enqueue_notification: {
+        Args: { schedule_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

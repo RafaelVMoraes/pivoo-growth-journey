@@ -11,6 +11,9 @@ export interface Activity {
   frequency?: string;
   frequency_type?: 'daily' | 'weekly' | 'monthly' | 'custom';
   frequency_value?: number;
+  time_of_day?: 'morning' | 'afternoon' | 'night';
+  days_of_week?: string[];
+  day_of_month?: number;
   status: 'active' | 'completed';
   created_at: string;
   updated_at: string;
