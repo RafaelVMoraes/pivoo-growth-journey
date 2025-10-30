@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, Maximize2, Lightbulb, Flame, TrendingUp, MoreVertical, Edit2, Archive, Trash2 } from 'lucide-react';
+import { Calendar, Target, CheckCircle2, Pause, Play, RotateCcw, Maximize2, Lightbulb, Flame, TrendingUp, MoreVertical, Edit2, Archive, Trash2, MessageCircle } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCheckIns } from '@/hooks/useCheckIns';
@@ -284,6 +284,27 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
               </Badge>
             )}
           </div>
+
+          {/* Reflection - Show if any reflection data exists */}
+          {(goal.surface_motivation || goal.deeper_motivation || goal.identity_motivation) && (
+            <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageCircle size={14} className="text-primary" />
+                <span className="text-xs font-medium text-primary">Why This Goal Matters</span>
+              </div>
+              <div className="space-y-2 text-sm">
+                {goal.surface_motivation && (
+                  <p className="text-muted-foreground italic">"{goal.surface_motivation}"</p>
+                )}
+                {goal.deeper_motivation && (
+                  <p className="text-muted-foreground italic">"{goal.deeper_motivation}"</p>
+                )}
+                {goal.identity_motivation && (
+                  <p className="text-foreground font-medium italic">"{goal.identity_motivation}"</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Values */}
           {goal.related_values && goal.related_values.length > 0 && (

@@ -149,6 +149,9 @@ export const RedesignedAddGoalDialog = ({ children }: RedesignedAddGoalDialogPro
         life_wheel_area: selectedAreas,
         target_date: goalType === 'outcome' ? targetDate : undefined,
         related_values: [],
+        surface_motivation: reflection.surface || undefined,
+        deeper_motivation: reflection.deeper || undefined,
+        identity_motivation: reflection.identity || undefined,
       };
 
       const createdGoal = await createGoal(goalData);

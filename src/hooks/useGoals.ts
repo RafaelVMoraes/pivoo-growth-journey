@@ -15,6 +15,9 @@ export interface Goal {
   life_wheel_area?: string | string[];
   related_values?: string[];
   parent_goal_id?: string;
+  surface_motivation?: string;
+  deeper_motivation?: string;
+  identity_motivation?: string;
   created_at: string;
   updated_at: string;
 }
@@ -67,6 +70,9 @@ export const useGoals = () => {
         life_wheel_area: goalData.life_wheel_area,
         related_values: goalData.related_values,
         parent_goal_id: goalData.parent_goal_id,
+        surface_motivation: goalData.surface_motivation,
+        deeper_motivation: goalData.deeper_motivation,
+        identity_motivation: goalData.identity_motivation,
         user_id: user.id,
       };
 
@@ -109,6 +115,9 @@ export const useGoals = () => {
       if (updates.life_wheel_area !== undefined) cleanUpdates.life_wheel_area = updates.life_wheel_area;
       if (updates.related_values !== undefined) cleanUpdates.related_values = updates.related_values;
       if (updates.parent_goal_id !== undefined) cleanUpdates.parent_goal_id = updates.parent_goal_id;
+      if (updates.surface_motivation !== undefined) cleanUpdates.surface_motivation = updates.surface_motivation;
+      if (updates.deeper_motivation !== undefined) cleanUpdates.deeper_motivation = updates.deeper_motivation;
+      if (updates.identity_motivation !== undefined) cleanUpdates.identity_motivation = updates.identity_motivation;
 
       const { data, error } = await supabase
         .from('goals')

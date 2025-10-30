@@ -81,6 +81,14 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     }
   };
 
+  const [editingFrequency, setEditingFrequency] = useState<{
+    type: 'daily' | 'weekly' | 'monthly';
+    value?: number;
+    timeOfDay?: 'morning' | 'afternoon' | 'night';
+    daysOfWeek?: string[];
+    dayOfMonth?: number;
+  }>({ type: 'weekly' });
+
   const handleEditActivity = (activity: Activity) => {
     setEditingId(activity.id);
     const validType = activity.frequency_type === 'custom' ? 'weekly' : (activity.frequency_type || 'weekly');
@@ -88,6 +96,13 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
       description: activity.description,
       frequencyType: validType as 'daily' | 'weekly' | 'monthly',
       frequencyValue: activity.frequency_value || 3
+    });
+    setEditingFrequency({
+      type: validType as 'daily' | 'weekly' | 'monthly',
+      value: activity.frequency_value,
+      timeOfDay: activity.time_of_day,
+      daysOfWeek: activity.days_of_week,
+      dayOfMonth: activity.day_of_month
     });
   };
 
@@ -97,11 +112,15 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     try {
       await updateActivity(editingId, {
         description: editingActivity.description.trim(),
-        frequency_type: editingActivity.frequencyType,
-        frequency_value: editingActivity.frequencyValue
+        frequency_type: editingFrequency.type,
+        frequency_value: editingFrequency.value,
+        time_of_day: editingFrequency.timeOfDay,
+        days_of_week: editingFrequency.daysOfWeek,
+        day_of_month: editingFrequency.dayOfMonth
       });
       setEditingId(null);
       setEditingActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
+      setEditingFrequency({ type: 'weekly' });
     } catch (error) {
       // Error handled by hook
     }
@@ -221,15 +240,8 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
                         className="text-sm min-h-[44px]"
                       />
                       <FrequencySelector
-                        value={{
-                          type: editingActivity.frequencyType,
-                          value: editingActivity.frequencyValue
-                        }}
-                        onChange={(freq) => setEditingActivity(prev => ({
-                          ...prev,
-                          frequencyType: freq.type,
-                          frequencyValue: freq.value || 3
-                        }))}
+                        value={editingFrequency}
+                        onChange={(freq) => setEditingFrequency(freq)}
                       />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={handleSaveEdit} className="min-h-[44px]">

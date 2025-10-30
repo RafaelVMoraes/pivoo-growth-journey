@@ -146,12 +146,15 @@ export type Database = {
         Row: {
           category: string | null
           created_at: string
+          deeper_motivation: string | null
           description: string | null
           id: string
+          identity_motivation: string | null
           life_wheel_area: string[] | null
           parent_goal_id: string | null
           related_values: string[] | null
           status: string | null
+          surface_motivation: string | null
           target_date: string | null
           title: string
           type: string | null
@@ -161,12 +164,15 @@ export type Database = {
         Insert: {
           category?: string | null
           created_at?: string
+          deeper_motivation?: string | null
           description?: string | null
           id?: string
+          identity_motivation?: string | null
           life_wheel_area?: string[] | null
           parent_goal_id?: string | null
           related_values?: string[] | null
           status?: string | null
+          surface_motivation?: string | null
           target_date?: string | null
           title: string
           type?: string | null
@@ -176,12 +182,15 @@ export type Database = {
         Update: {
           category?: string | null
           created_at?: string
+          deeper_motivation?: string | null
           description?: string | null
           id?: string
+          identity_motivation?: string | null
           life_wheel_area?: string[] | null
           parent_goal_id?: string | null
           related_values?: string[] | null
           status?: string | null
+          surface_motivation?: string | null
           target_date?: string | null
           title?: string
           type?: string | null
