@@ -5,8 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronRight, Target, RotateCcw, Eye, Edit, Trash2 } from 'lucide-react';
-import { GoalDetailsDialog } from './GoalDetailsDialog';
-import { EditGoalDialog } from './EditGoalDialog';
+import { GoalDetailsDialog } from '../dialogs/GoalDetailsDialog';
+import { EditGoalDialog } from '../dialogs/EditGoalDialog';
 import {
   AlertDialog,
   AlertDialogAction,

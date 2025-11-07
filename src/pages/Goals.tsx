@@ -3,11 +3,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import { RedesignedAddGoalDialog } from '@/components/goals/RedesignedAddGoalDialog';
-import { ViewToggle } from '@/components/goals/ViewToggle';
-import { StatusTabs } from '@/components/goals/StatusTabs';
-import { HighLevelView } from '@/components/goals/HighLevelView';
-import { TasksView } from '@/components/goals/TasksView';
+import { AddGoalDialog } from '@/components/goals/dialogs/AddGoalDialog';
+import { ViewToggle } from '@/components/goals/filters/ViewToggle';
+import { StatusTabs } from '@/components/goals/filters/StatusTabs';
+import { HighLevelView } from '@/components/goals/views/HighLevelView';
+import { TasksView } from '@/components/goals/views/TasksView';
 
 type ViewMode = 'high-level' | 'tasks';
 type StatusFilter = 'active' | 'completed' | 'archived';
@@ -36,12 +36,12 @@ export const Goals = () => {
           </h1>
           <div className="flex items-center gap-3">
             {!isGuest && (
-              <RedesignedAddGoalDialog>
+              <AddGoalDialog>
                 <Button className="gap-2">
                   <Plus size={20} />
                   Add Goal
                 </Button>
-              </RedesignedAddGoalDialog>
+              </AddGoalDialog>
             )}
             <ViewToggle value={viewMode} onChange={setViewMode} />
           </div>
@@ -63,14 +63,14 @@ export const Goals = () => {
       {/* Floating Action Button */}
       {!isGuest && (
         <div className="fixed bottom-20 right-4 z-50">
-          <RedesignedAddGoalDialog>
+          <AddGoalDialog>
             <Button 
               size="lg" 
               className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
             >
               <Plus size={24} />
             </Button>
-          </RedesignedAddGoalDialog>
+          </AddGoalDialog>
         </div>
       )}
     </div>

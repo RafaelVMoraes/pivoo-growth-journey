@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Goal } from '@/hooks/useGoals';
-import { ActivityList } from './ActivityList';
+import { ActivityList } from '../forms/ActivityList';
 import { Target, RotateCcw } from 'lucide-react';
 
 interface GoalDetailsDialogProps {

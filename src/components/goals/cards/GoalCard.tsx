@@ -10,9 +10,8 @@ import { useGoals } from '@/hooks/useGoals';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCheckIns } from '@/hooks/useCheckIns';
 import { useActivities } from '@/hooks/useActivities';
-import { ReflectionLayer } from './ReflectionLayer';
-import { GoalDetailsDialog } from './GoalDetailsDialog';
-import { EditGoalDialog } from './EditGoalDialog';
+import { GoalDetailsDialog } from '../dialogs/GoalDetailsDialog';
+import { EditGoalDialog } from '../dialogs/EditGoalDialog';
 
 interface EnhancedGoalCardProps {
   goal: Goal;
