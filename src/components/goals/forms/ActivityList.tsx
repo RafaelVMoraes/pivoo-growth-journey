@@ -99,7 +99,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     });
     setEditingFrequency({
       type: validType as 'daily' | 'weekly' | 'monthly',
-      value: activity.frequency_value,
+      //value: activity.frequency_value,
       timeOfDay: activity.time_of_day,
       daysOfWeek: activity.days_of_week,
       dayOfMonth: activity.day_of_month
@@ -113,7 +113,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
       await updateActivity(editingId, {
         description: editingActivity.description.trim(),
         frequency_type: editingFrequency.type,
-        frequency_value: editingFrequency.value,
+        //frequency_value: editingFrequency.value,
         time_of_day: editingFrequency.timeOfDay,
         days_of_week: editingFrequency.daysOfWeek,
         day_of_month: editingFrequency.dayOfMonth
