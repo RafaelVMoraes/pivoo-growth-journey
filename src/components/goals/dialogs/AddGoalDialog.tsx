@@ -23,7 +23,7 @@ interface AddGoalDialogProps {
 interface ActivityInput {
   description: string;
   frequencyType: 'daily' | 'weekly' | 'monthly';
-  frequencyValue?: number;
+  //frequencyValue?: number;
   timeOfDay?: 'morning' | 'afternoon' | 'night';
   daysOfWeek?: string[];
   dayOfMonth?: number;
@@ -107,7 +107,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
           goal_id: goalData.id,
           description: activity.description,
           frequency_type: activity.frequencyType,
-          frequency_value: activity.frequencyValue,
+          //frequency_value: activity.frequencyValue,
           time_of_day: activity.timeOfDay,
           days_of_week: activity.daysOfWeek,
           day_of_month: activity.dayOfMonth,
@@ -157,7 +157,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
   const addActivity = () => {
     setActivities(prev => [
       ...prev,
-      { description: '', frequencyType: 'weekly', frequencyValue: 3 },
+      { description: '', frequencyType: 'weekly' },
     ]);
   };
 
@@ -326,7 +326,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
             <FrequencySelector
               value={{
                 type: activity.frequencyType,
-                value: activity.frequencyValue,
+                //value: activity.frequencyValue,
                 timeOfDay: activity.timeOfDay,
                 daysOfWeek: activity.daysOfWeek,
                 dayOfMonth: activity.dayOfMonth,
@@ -334,7 +334,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
               onChange={(freq) =>
                 updateActivity(index, {
                   frequencyType: freq.type,
-                  frequencyValue: freq.value,
+                  //frequencyValue: freq.value,
                   timeOfDay: freq.timeOfDay,
                   daysOfWeek: freq.daysOfWeek,
                   dayOfMonth: freq.dayOfMonth,
