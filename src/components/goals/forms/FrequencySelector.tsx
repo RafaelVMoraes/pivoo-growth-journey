@@ -47,22 +47,6 @@ export const FrequencySelector = ({ value, onChange }: FrequencySelectorProps) =
             </SelectContent>
           </Select>
         </div>
-
-        {value.type !== 'daily' && (
-          <div className="space-y-2">
-            <Label className="text-sm">
-              {value.type === 'weekly' ? 'Times per week' : 'Times per month'}
-            </Label>
-            <Input
-              type="number"
-              min="1"
-              max={value.type === 'weekly' ? '7' : '31'}
-              value={value.value || ''}
-              onChange={(e) => onChange({ ...value, value: parseInt(e.target.value) || 1 })}
-              className="min-h-[44px]"
-            />
-          </div>
-        )}
       </div>
 
       {/* Daily - Time of Day */}
