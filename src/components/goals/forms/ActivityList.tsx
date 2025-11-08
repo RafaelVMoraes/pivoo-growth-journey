@@ -19,13 +19,13 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
   const [newActivity, setNewActivity] = useState({ 
     description: '', 
     frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly',
-    frequencyValue: 3
+    //frequencyValue: 3
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState({ 
     description: '', 
     frequencyType: 'weekly' as 'daily' | 'weekly' | 'monthly',
-    frequencyValue: 3
+    //frequencyValue: 3
   });
   const [isAdding, setIsAdding] = useState(false);
   const [creatingCheckIn, setCreatingCheckIn] = useState<string | null>(null);
@@ -71,10 +71,10 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
         goal_id: goalId,
         description: newActivity.description.trim(),
         frequency_type: newActivity.frequencyType,
-        frequency_value: newActivity.frequencyValue,
+        //frequency_value: newActivity.frequencyValue,
         status: 'active'
       });
-      setNewActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
+      setNewActivity({ description: '', frequencyType: 'weekly'});
       setIsAdding(false);
     } catch (error) {
       // Error handled by hook
@@ -95,7 +95,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
     setEditingActivity({
       description: activity.description,
       frequencyType: validType as 'daily' | 'weekly' | 'monthly',
-      frequencyValue: activity.frequency_value || 3
+      //frequencyValue: activity.frequency_value || 3
     });
     setEditingFrequency({
       type: validType as 'daily' | 'weekly' | 'monthly',
@@ -119,7 +119,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
         day_of_month: editingFrequency.dayOfMonth
       });
       setEditingId(null);
-      setEditingActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
+      setEditingActivity({ description: '', frequencyType: 'weekly' });
       setEditingFrequency({ type: 'weekly' });
     } catch (error) {
       // Error handled by hook
@@ -188,12 +188,12 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
           <FrequencySelector
             value={{
               type: newActivity.frequencyType,
-              value: newActivity.frequencyValue
+              //value: newActivity.frequencyValue
             }}
             onChange={(freq) => setNewActivity(prev => ({
               ...prev,
               frequencyType: freq.type,
-              frequencyValue: freq.value || 3
+              //frequencyValue: freq.value || 3
             }))}
           />
           <div className="flex gap-2">
@@ -211,7 +211,7 @@ export const ActivityList = ({ goalId }: ActivityListProps) => {
               variant="outline" 
               onClick={() => {
                 setIsAdding(false);
-                setNewActivity({ description: '', frequencyType: 'weekly', frequencyValue: 3 });
+                setNewActivity({ description: '', frequencyType: 'weekly' });
               }}
               className="min-h-[44px]"
             >
