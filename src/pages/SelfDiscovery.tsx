@@ -28,7 +28,8 @@ export const SelfDiscovery = () => {
     updateLifeWheel,
     updateValues,
     updateVision,
-    PREDEFINED_VALUES
+    PREDEFINED_VALUES,
+    LIFE_AREAS_BY_CATEGORY
   } = useSelfDiscovery();
 
   // Check if user has completed the self-discovery (has data)
@@ -126,6 +127,7 @@ export const SelfDiscovery = () => {
               data={lifeWheelData}
               onUpdate={updateLifeWheel}
               saving={saving}
+              categories={LIFE_AREAS_BY_CATEGORY}
             />
           )}
         </TabsContent>
