@@ -7,6 +7,7 @@ interface LifeWheelData {
   area_name: string;
   current_score: number;
   desired_score: number;
+  is_focus_area?: boolean;
 }
 
 interface ValuesData {
@@ -21,14 +22,27 @@ interface VisionData {
   phrase_year?: string;
 }
 
-const LIFE_AREAS = ['Plenitude', 'Hobbies', 'Relationship', 'Career', 'Financial', 'Health'];
+const LIFE_AREAS = [
+  'Health & Energy',
+  'Mental & Emotional Well-being',
+  'Relationships & Social Life',
+  'Love & Partnership',
+  'Family',
+  'Career & Mission',
+  'Finances',
+  'Personal Growth & Learning',
+  'Spirituality / Purpose',
+  'Lifestyle & Leisure',
+  'Physical Environment',
+  'Contribution / Community'
+];
 
 const PREDEFINED_VALUES = {
-  Growth: ['Learning', 'Achievement', 'Excellence', 'Innovation', 'Wisdom', 'Progress'],
-  Freedom: ['Independence', 'Autonomy', 'Flexibility', 'Adventure', 'Travel', 'Choice'],
-  Connection: ['Family', 'Friendship', 'Love', 'Community', 'Belonging', 'Service'],
-  Creativity: ['Art', 'Expression', 'Beauty', 'Imagination', 'Design', 'Music'],
-  Stability: ['Security', 'Peace', 'Balance', 'Health', 'Comfort', 'Order']
+  'Identity & Integrity': ['Authenticity', 'Responsibility', 'Honesty', 'Discipline', 'Courage', 'Reliability'],
+  'Growth & Mastery': ['Learning', 'Curiosity', 'Excellence', 'Innovation', 'Resilience', 'Ambition'],
+  'Connection & Community': ['Empathy', 'Belonging', 'Collaboration', 'Diversity', 'Family', 'Generosity'],
+  'Well-being & Balance': ['Health', 'Stability', 'Mindfulness', 'Joy', 'Simplicity', 'Peace'],
+  'Purpose & Impact': ['Freedom', 'Contribution', 'Creativity', 'Sustainability', 'Leadership', 'Vision']
 };
 
 export const useSelfDiscovery = () => {
@@ -54,7 +68,8 @@ export const useSelfDiscovery = () => {
     setLifeWheelData(LIFE_AREAS.map(area => ({
       area_name: area,
       current_score: 5,
-      desired_score: 8
+      desired_score: 8,
+      is_focus_area: false
     })));
 
     const allValues: ValuesData[] = [];
@@ -99,12 +114,13 @@ export const useSelfDiscovery = () => {
     const defaultData = LIFE_AREAS.map(area => ({
       area_name: area,
       current_score: 5,
-      desired_score: 8
+      desired_score: 8,
+      is_focus_area: false
     }));
 
     const mergedData = defaultData.map(defaultArea => {
       const existing = data.find(d => d.area_name === defaultArea.area_name);
-      return existing || defaultArea;
+      return existing ? { ...existing, is_focus_area: false } : defaultArea;
     });
 
     setLifeWheelData(mergedData);
@@ -131,6 +147,17 @@ export const useSelfDiscovery = () => {
         value_name: value,
         selected: existing?.selected || false
       });
+    });
+
+    // Add custom values (values not in predefined list)
+    data?.forEach(d => {
+      const isPredefined = Object.values(PREDEFINED_VALUES).flat().includes(d.value_name);
+      if (!isPredefined) {
+        allValues.push({
+          value_name: d.value_name,
+          selected: d.selected
+        });
+      }
     });
 
     setValuesData(allValues);
