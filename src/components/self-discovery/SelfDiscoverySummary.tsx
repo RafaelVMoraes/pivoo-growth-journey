@@ -38,6 +38,30 @@ export const SelfDiscoverySummary = ({
 }: SelfDiscoverySummaryProps) => {
   const selectedValues = valuesData.filter(v => v.selected);
 
+  // Category colors with proper contrast
+  const categoryColors: Record<string, { bg: string, text: string }> = {
+    'Identity & Integrity': { bg: 'bg-purple-500/20 dark:bg-purple-500/30', text: 'text-purple-900 dark:text-purple-100' },
+    'Growth & Mastery': { bg: 'bg-blue-500/20 dark:bg-blue-500/30', text: 'text-blue-900 dark:text-blue-100' },
+    'Connection & Community': { bg: 'bg-pink-500/20 dark:bg-pink-500/30', text: 'text-pink-900 dark:text-pink-100' },
+    'Well-being & Balance': { bg: 'bg-green-500/20 dark:bg-green-500/30', text: 'text-green-900 dark:text-green-100' },
+    'Purpose & Impact': { bg: 'bg-orange-500/20 dark:bg-orange-500/30', text: 'text-orange-900 dark:text-orange-100' }
+  };
+
+  const PREDEFINED_VALUES = {
+    'Identity & Integrity': ['Authenticity', 'Responsibility', 'Honesty', 'Discipline', 'Courage', 'Reliability'],
+    'Growth & Mastery': ['Learning', 'Curiosity', 'Excellence', 'Innovation', 'Resilience', 'Ambition'],
+    'Connection & Community': ['Empathy', 'Belonging', 'Collaboration', 'Diversity', 'Family', 'Generosity'],
+    'Well-being & Balance': ['Health', 'Stability', 'Mindfulness', 'Joy', 'Simplicity', 'Peace'],
+    'Purpose & Impact': ['Freedom', 'Contribution', 'Creativity', 'Sustainability', 'Leadership', 'Vision']
+  };
+
+  const getCategoryForValue = (valueName: string): string => {
+    for (const [category, values] of Object.entries(PREDEFINED_VALUES)) {
+      if (values.includes(valueName)) return category;
+    }
+    return 'Identity & Integrity'; // fallback for custom values
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header with Edit Button */}
@@ -89,11 +113,18 @@ export const SelfDiscoverySummary = ({
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {selectedValues.map((value) => (
-                <Badge key={value.value_name} variant="secondary" className="text-sm px-3 py-1">
-                  {value.value_name}
-                </Badge>
-              ))}
+              {selectedValues.map((value) => {
+                const category = getCategoryForValue(value.value_name);
+                const colors = categoryColors[category];
+                return (
+                  <Badge 
+                    key={value.value_name} 
+                    className={`text-sm px-3 py-1.5 border ${colors.bg} ${colors.text} border-current/30`}
+                  >
+                    {value.value_name}
+                  </Badge>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

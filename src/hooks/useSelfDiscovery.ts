@@ -22,20 +22,30 @@ interface VisionData {
   phrase_year?: string;
 }
 
-const LIFE_AREAS = [
-  'Health & Energy',
-  'Mental & Emotional Well-being',
-  'Relationships & Social Life',
-  'Love & Partnership',
-  'Family',
-  'Career & Mission',
-  'Finances',
-  'Personal Growth & Learning',
-  'Spirituality / Purpose',
-  'Lifestyle & Leisure',
-  'Physical Environment',
-  'Contribution / Community'
-];
+const LIFE_AREAS_BY_CATEGORY = {
+  'Life Quality': [
+    'Health & Energy',
+    'Mental & Emotional Well-being',
+    'Lifestyle & Leisure'
+  ],
+  'Personal': [
+    'Personal Growth & Learning',
+    'Spirituality / Purpose',
+    'Contribution / Community'
+  ],
+  'Professional': [
+    'Career & Mission',
+    'Finances',
+    'Physical Environment'
+  ],
+  'Relationships': [
+    'Relationships & Social Life',
+    'Love & Partnership',
+    'Family'
+  ]
+};
+
+const LIFE_AREAS = Object.values(LIFE_AREAS_BY_CATEGORY).flat();
 
 const PREDEFINED_VALUES = {
   'Identity & Integrity': ['Authenticity', 'Responsibility', 'Honesty', 'Discipline', 'Courage', 'Reliability'],
@@ -332,6 +342,7 @@ export const useSelfDiscovery = () => {
     updateValues,
     updateVision,
     PREDEFINED_VALUES,
-    LIFE_AREAS
+    LIFE_AREAS,
+    LIFE_AREAS_BY_CATEGORY
   };
 };

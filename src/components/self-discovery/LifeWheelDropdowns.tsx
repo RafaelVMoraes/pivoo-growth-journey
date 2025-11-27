@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Info, Star } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,6 +19,7 @@ interface LifeWheelDropdownsProps {
   data: LifeWheelData[];
   onUpdate: (areaName: string, updates: Partial<LifeWheelData>) => void;
   saving: boolean;
+  categories: Record<string, string[]>;
 }
 
 const SCORE_LABELS: Record<number, string> = {
@@ -72,9 +73,14 @@ const ScaleInfoDialog = () => {
   );
 };
 
-export const LifeWheelDropdowns = ({ data, onUpdate, saving }: LifeWheelDropdownsProps) => {
+export const LifeWheelDropdowns = ({ data, onUpdate, saving, categories }: LifeWheelDropdownsProps) => {
   const { t } = useTranslation();
   const [localData, setLocalData] = useState(data);
+
+  // Sync with incoming data
+  useEffect(() => {
+    setLocalData(data);
+  }, [data]);
 
   const handleFocusToggle = (areaName: string, checked: boolean) => {
     setLocalData(prev => prev.map(area => 
@@ -111,6 +117,14 @@ export const LifeWheelDropdowns = ({ data, onUpdate, saving }: LifeWheelDropdown
     ? (localData.reduce((sum, area) => sum + area.desired_score, 0) / localData.length).toFixed(1)
     : '0';
 
+  // Category colors
+  const categoryColors: Record<string, string> = {
+    'Life Quality': 'text-green-600 dark:text-green-400 border-green-500/30',
+    'Personal': 'text-purple-600 dark:text-purple-400 border-purple-500/30',
+    'Professional': 'text-blue-600 dark:text-blue-400 border-blue-500/30',
+    'Relationships': 'text-pink-600 dark:text-pink-400 border-pink-500/30'
+  };
+
   return (
     <Card className="gradient-card shadow-soft">
       <CardHeader className="pb-4">
@@ -134,81 +148,101 @@ export const LifeWheelDropdowns = ({ data, onUpdate, saving }: LifeWheelDropdown
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {localData.map((area) => (
-          <div key={area.area_name} className="space-y-3 p-4 rounded-lg bg-muted/20">
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium text-base">{area.area_name}</h4>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`focus-${area.area_name}`}
-                  checked={area.is_focus_area || false}
-                  onCheckedChange={(checked) => handleFocusToggle(area.area_name, checked as boolean)}
-                  disabled={saving}
-                />
-                <Label 
-                  htmlFor={`focus-${area.area_name}`}
-                  className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1"
-                >
-                  <Star size={12} className={area.is_focus_area ? 'fill-primary text-primary' : ''} />
-                  Focus Area
-                </Label>
-              </div>
-            </div>
-            
-            {/* Current Score Dropdown */}
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">{t('selfDiscovery.whereIAmNow')}</label>
-              <Select
-                value={area.current_score.toString()}
-                onValueChange={(value) => handleScoreChange(area.area_name, 'current', value)}
-                disabled={saving}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((score) => (
-                    <SelectItem key={score} value={score.toString()}>
-                      {score} — {SCORE_LABELS[score]}
-                    </SelectItem>
-                  ))}
-                  {area.is_focus_area && (
-                    <>
-                      <SelectItem value="9">9 — {SCORE_LABELS[9]}</SelectItem>
-                      <SelectItem value="10">10 — {SCORE_LABELS[10]}</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+      <CardContent className="space-y-8">
+        {Object.entries(categories).map(([categoryName, areas]) => (
+          <div key={categoryName} className="space-y-4">
+            {/* Category Header */}
+            <div className={`flex items-center gap-2 pb-2 border-b-2 ${categoryColors[categoryName]}`}>
+              <h3 className="font-semibold text-lg">
+                {categoryName}
+              </h3>
             </div>
 
-            {/* Desired Score Dropdown */}
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">{t('selfDiscovery.whereIWantToBe')}</label>
-              <Select
-                value={area.desired_score.toString()}
-                onValueChange={(value) => handleScoreChange(area.area_name, 'desired', value)}
-                disabled={saving}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((score) => (
-                    <SelectItem key={score} value={score.toString()}>
-                      {score} — {SCORE_LABELS[score]}
-                    </SelectItem>
-                  ))}
-                  {area.is_focus_area && (
-                    <>
-                      <SelectItem value="9">9 — {SCORE_LABELS[9]}</SelectItem>
-                      <SelectItem value="10">10 — {SCORE_LABELS[10]}</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Areas in this category */}
+            {areas.map((areaName) => {
+              const area = localData.find(a => a.area_name === areaName);
+              if (!area) return null;
+
+              return (
+                <div key={area.area_name} className="space-y-3 pb-4 border-b last:border-b-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-base">{area.area_name}</h4>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id={`focus-${area.area_name}`}
+                        checked={area.is_focus_area || false}
+                        onCheckedChange={(checked) => handleFocusToggle(area.area_name, checked as boolean)}
+                        disabled={saving}
+                      />
+                      <Label 
+                        htmlFor={`focus-${area.area_name}`}
+                        className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1"
+                      >
+                        <Star size={12} className={area.is_focus_area ? 'fill-primary text-primary' : ''} />
+                        Focus Area
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* Side-by-side dropdowns */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Current Level */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Current Level</Label>
+                      <Select
+                        value={area.current_score.toString()}
+                        onValueChange={(value) => handleScoreChange(area.area_name, 'current', value)}
+                        disabled={saving}
+                      >
+                        <SelectTrigger className="w-full h-9 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8].map((score) => (
+                            <SelectItem key={score} value={score.toString()}>
+                              {score} – {SCORE_LABELS[score]}
+                            </SelectItem>
+                          ))}
+                          {area.is_focus_area && (
+                            <>
+                              <SelectItem value="9">9 – {SCORE_LABELS[9]}</SelectItem>
+                              <SelectItem value="10">10 – {SCORE_LABELS[10]}</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Target Level */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Target Level</Label>
+                      <Select
+                        value={area.desired_score.toString()}
+                        onValueChange={(value) => handleScoreChange(area.area_name, 'desired', value)}
+                        disabled={saving}
+                      >
+                        <SelectTrigger className="w-full h-9 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8].map((score) => (
+                            <SelectItem key={score} value={score.toString()}>
+                              {score} – {SCORE_LABELS[score]}
+                            </SelectItem>
+                          ))}
+                          {area.is_focus_area && (
+                            <>
+                              <SelectItem value="9">9 – {SCORE_LABELS[9]}</SelectItem>
+                              <SelectItem value="10">10 – {SCORE_LABELS[10]}</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ))}
       </CardContent>
