@@ -5,10 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, List, Loader2 } from 'lucide-react';
 import { useSelfDiscovery } from '@/hooks/useSelfDiscovery';
 import { LifeWheelChart } from '@/components/self-discovery/LifeWheelChart';
-import { LifeWheelSliders } from '@/components/self-discovery/LifeWheelSliders';
+import { LifeWheelDropdowns } from '@/components/self-discovery/LifeWheelDropdowns';
 import { ValuesSelection } from '@/components/self-discovery/ValuesSelection';
 import { VisionInputs } from '@/components/self-discovery/VisionInputs';
 import { YearFocus } from '@/components/self-discovery/YearFocus';
+import { SelfDiscoverySummary } from '@/components/self-discovery/SelfDiscoverySummary';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -16,6 +17,7 @@ export const SelfDiscovery = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'chart' | 'list'>('chart');
+  const [showSummary, setShowSummary] = useState(false);
   const {
     loading,
     saving,
@@ -29,6 +31,11 @@ export const SelfDiscovery = () => {
     PREDEFINED_VALUES
   } = useSelfDiscovery();
 
+  // Check if user has completed the self-discovery (has data)
+  const hasData = visionData.word_year || visionData.phrase_year || 
+                  visionData.vision_1y || visionData.vision_3y || 
+                  valuesData.some(v => v.selected);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] animate-fade-in">
@@ -37,6 +44,18 @@ export const SelfDiscovery = () => {
           <p className="text-muted-foreground">{t('selfDiscovery.loadingData')}</p>
         </div>
       </div>
+    );
+  }
+
+  // If user wants to see summary and has data
+  if (showSummary && hasData) {
+    return (
+      <SelfDiscoverySummary
+        lifeWheelData={lifeWheelData}
+        valuesData={valuesData}
+        visionData={visionData}
+        onEdit={() => setShowSummary(false)}
+      />
     );
   }
 
@@ -53,6 +72,15 @@ export const SelfDiscovery = () => {
             <Loader2 size={16} className="animate-spin" />
             {t('selfDiscovery.savingChanges')}
           </div>
+        )}
+        {hasData && (
+          <Button 
+            variant="outline" 
+            onClick={() => setShowSummary(true)}
+            className="mt-2"
+          >
+            View Summary
+          </Button>
         )}
       </div>
 
@@ -90,11 +118,11 @@ export const SelfDiscovery = () => {
             </div>
           </div>
 
-          {/* Chart or Sliders View */}
+          {/* Chart or Dropdowns View */}
           {viewMode === 'chart' ? (
             <LifeWheelChart data={lifeWheelData} />
           ) : (
-            <LifeWheelSliders 
+            <LifeWheelDropdowns 
               data={lifeWheelData}
               onUpdate={updateLifeWheel}
               saving={saving}

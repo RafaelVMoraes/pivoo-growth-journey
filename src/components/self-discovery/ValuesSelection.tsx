@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, Plus } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useState } from 'react';
 
 interface ValuesData {
   value_name: string;
@@ -25,8 +27,20 @@ export const ValuesSelection = ({
   saving 
 }: ValuesSelectionProps) => {
   const { t } = useTranslation();
+  const [customValue, setCustomValue] = useState('');
   const selectedValues = valuesData.filter(v => v.selected);
   const unselectedValues = valuesData.filter(v => !v.selected);
+  
+  // Get list of all predefined values
+  const predefinedValues = Object.values(categories).flat();
+  const customValues = valuesData.filter(v => !predefinedValues.includes(v.value_name));
+
+  const handleAddCustomValue = () => {
+    if (customValue.trim() && !valuesData.find(v => v.value_name === customValue.trim())) {
+      onUpdate(customValue.trim(), true);
+      setCustomValue('');
+    }
+  };
 
   // Define colors for each category
   const categoryColors: Record<string, { bg: string, text: string, border: string }> = {
@@ -121,6 +135,45 @@ export const ValuesSelection = ({
               </div>
             );
           })}
+        </div>
+
+        {/* Custom Values Section */}
+        <div className="space-y-3 pt-4 border-t">
+          <h4 className="font-medium text-base">Add Custom Value</h4>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter your own value..."
+              value={customValue}
+              onChange={(e) => setCustomValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAddCustomValue()}
+              disabled={saving || selectedCount >= 7}
+            />
+            <Button
+              onClick={handleAddCustomValue}
+              disabled={!customValue.trim() || saving || selectedCount >= 7}
+              size="icon"
+            >
+              <Plus size={16} />
+            </Button>
+          </div>
+          {customValues.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Your custom values:</p>
+              <div className="flex flex-wrap gap-2">
+                {customValues.map((value) => (
+                  <Badge
+                    key={value.value_name}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-muted"
+                    onClick={() => handleValueClick(value.value_name, value.selected)}
+                  >
+                    {value.value_name}
+                    {value.selected && <Check size={12} className="ml-1" />}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
