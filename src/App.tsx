@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
 import SelfDiscovery from "./pages/SelfDiscovery";
+import AIChatbot from "./pages/AIChatbot";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,14 @@ const App = () => (
               element={
                 <AppLayout>
                   <SelfDiscovery />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/ai-chatbot" 
+              element={
+                <AppLayout>
+                  <AIChatbot />
                 </AppLayout>
               } 
             />

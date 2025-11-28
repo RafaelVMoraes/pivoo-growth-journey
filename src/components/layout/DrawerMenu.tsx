@@ -14,7 +14,8 @@ import {
   Settings, 
   LogOut,
   UserPlus,
-  LogIn
+  LogIn,
+  MessageSquare
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -57,6 +58,16 @@ export const DrawerMenu = ({ open, onClose }: DrawerMenuProps) => {
           >
             <LifeBuoy className="mr-3 h-5 w-5" />
             {t('nav.selfDiscovery')}
+          </Button>
+
+          {/* AI Chatbot */}
+          <Button
+            variant="ghost"
+            className="w-full justify-start h-12"
+            onClick={() => handleNavigation('/ai-chatbot')}
+          >
+            <MessageSquare className="mr-3 h-5 w-5" />
+            AI Chatbot
           </Button>
 
           <Separator className="my-4" />
