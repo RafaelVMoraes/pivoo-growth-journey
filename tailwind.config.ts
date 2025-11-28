@@ -65,6 +65,22 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "category-life-quality": {
+          DEFAULT: "hsl(var(--category-life-quality))",
+          foreground: "hsl(var(--category-life-quality-foreground))",
+        },
+        "category-personal": {
+          DEFAULT: "hsl(var(--category-personal))",
+          foreground: "hsl(var(--category-personal-foreground))",
+        },
+        "category-professional": {
+          DEFAULT: "hsl(var(--category-professional))",
+          foreground: "hsl(var(--category-professional-foreground))",
+        },
+        "category-relationships": {
+          DEFAULT: "hsl(var(--category-relationships))",
+          foreground: "hsl(var(--category-relationships-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

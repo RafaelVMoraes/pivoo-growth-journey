@@ -45,6 +45,16 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    /* Life Wheel Categories */
+    --category-life-quality: 140 60% 55%;
+    --category-life-quality-foreground: 0 0% 100%;
+    --category-personal: 265 60% 60%;
+    --category-personal-foreground: 0 0% 100%;
+    --category-professional: 200 70% 50%;
+    --category-professional-foreground: 0 0% 100%;
+    --category-relationships: 330 70% 60%;
+    --category-relationships-foreground: 0 0% 100%;
+
     /* Borders & inputs */
     --border: 210 20% 88%;
     --input: 210 15% 92%;
@@ -105,6 +115,16 @@
     --success-foreground: 0 0% 100%;
     --warning: 38 80% 55%;
     --warning-foreground: 0 0% 100%;
+
+    /* Life Wheel Categories - Dark Mode */
+    --category-life-quality: 140 50% 50%;
+    --category-life-quality-foreground: 0 0% 100%;
+    --category-personal: 265 55% 65%;
+    --category-personal-foreground: 265 20% 10%;
+    --category-professional: 200 60% 55%;
+    --category-professional-foreground: 0 0% 100%;
+    --category-relationships: 330 60% 65%;
+    --category-relationships-foreground: 330 20% 10%;
 
     /* Borders & inputs */
     --border: 265 15% 18%;

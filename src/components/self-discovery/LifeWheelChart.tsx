@@ -1,21 +1,40 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface LifeWheelData {
   area_name: string;
   current_score: number;
   desired_score: number;
+  is_focus_area?: boolean;
 }
 
 interface LifeWheelChartProps {
   data: LifeWheelData[];
 }
 
+// Category mapping
+const CATEGORY_MAP: Record<string, { name: string; color: string }> = {
+  'Health & Energy': { name: 'Life Quality', color: 'hsl(var(--category-life-quality))' },
+  'Mental & Emotional Well-being': { name: 'Life Quality', color: 'hsl(var(--category-life-quality))' },
+  'Lifestyle & Leisure': { name: 'Life Quality', color: 'hsl(var(--category-life-quality))' },
+  'Personal Growth & Learning': { name: 'Personal', color: 'hsl(var(--category-personal))' },
+  'Spirituality / Purpose': { name: 'Personal', color: 'hsl(var(--category-personal))' },
+  'Contribution / Community': { name: 'Personal', color: 'hsl(var(--category-personal))' },
+  'Career & Mission': { name: 'Professional', color: 'hsl(var(--category-professional))' },
+  'Finances': { name: 'Professional', color: 'hsl(var(--category-professional))' },
+  'Physical Environment': { name: 'Professional', color: 'hsl(var(--category-professional))' },
+  'Relationships & Social Life': { name: 'Relationships', color: 'hsl(var(--category-relationships))' },
+  'Love & Partnership': { name: 'Relationships', color: 'hsl(var(--category-relationships))' },
+  'Family': { name: 'Relationships', color: 'hsl(var(--category-relationships))' },
+};
+
 export const LifeWheelChart = ({ data }: LifeWheelChartProps) => {
   const chartData = data.map(item => ({
     area: item.area_name,
     current: item.current_score,
     desired: item.desired_score,
+    fill: CATEGORY_MAP[item.area_name]?.color || 'hsl(var(--primary))',
   }));
 
   // Calculate averages
@@ -33,11 +52,35 @@ export const LifeWheelChart = ({ data }: LifeWheelChartProps) => {
   const showOverloadAlert = averageDifference > 1.5;
   const showHighExpectationsAlert = totalDesired > 50;
 
+  // Get unique categories for legend
+  const categories = [
+    { name: 'Life Quality', color: 'hsl(var(--category-life-quality))' },
+    { name: 'Personal', color: 'hsl(var(--category-personal))' },
+    { name: 'Professional', color: 'hsl(var(--category-professional))' },
+    { name: 'Relationships', color: 'hsl(var(--category-relationships))' },
+  ];
+
   return (
     <Card className="gradient-card shadow-soft">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg">Life Wheel Overview</CardTitle>
         
+        {/* Category Legend */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {categories.map((cat) => (
+            <Badge 
+              key={cat.name}
+              className="text-xs px-2 py-1"
+              style={{ 
+                backgroundColor: cat.color,
+                color: 'white'
+              }}
+            >
+              {cat.name}
+            </Badge>
+          ))}
+        </div>
+
         {/* Averages Display */}
         <div className="flex gap-4 mt-4 p-3 bg-muted/50 rounded-lg">
           <div className="flex-1 text-center">

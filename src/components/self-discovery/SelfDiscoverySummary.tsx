@@ -37,6 +37,7 @@ export const SelfDiscoverySummary = ({
   onEdit 
 }: SelfDiscoverySummaryProps) => {
   const selectedValues = valuesData.filter(v => v.selected);
+  const focusAreas = lifeWheelData.filter(area => area.is_focus_area);
 
   // Category colors with proper contrast
   const categoryColors: Record<string, { bg: string, text: string }> = {
@@ -76,31 +77,46 @@ export const SelfDiscoverySummary = ({
         </Button>
       </div>
 
-      {/* Word and Phrase of the Year */}
-      {(visionData.word_year || visionData.phrase_year) && (
+      {/* Top Container: Two-Column Layout */}
+      {(visionData.word_year || visionData.phrase_year || visionData.vision_1y || visionData.vision_3y) && (
         <Card className="gradient-card shadow-soft">
-          <CardHeader>
-            <CardTitle>Year Focus</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {visionData.word_year && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Word of the Year</p>
-                <p className="text-3xl font-bold text-primary">{visionData.word_year}</p>
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Left Column: Word and Phrase */}
+              <div className="space-y-4">
+                {visionData.word_year && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Word of the Year</p>
+                    <p className="text-3xl font-bold text-primary">{visionData.word_year}</p>
+                  </div>
+                )}
+                {visionData.phrase_year && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Phrase of the Year</p>
+                    <p className="text-xl font-medium italic">{visionData.phrase_year}</p>
+                  </div>
+                )}
               </div>
-            )}
-            {visionData.phrase_year && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Phrase of the Year</p>
-                <p className="text-xl font-medium italic">{visionData.phrase_year}</p>
+
+              {/* Right Column: Vision Statements */}
+              <div className="space-y-4">
+                {visionData.vision_1y && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2 text-primary">1 Year Vision</h3>
+                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">{visionData.vision_1y}</p>
+                  </div>
+                )}
+                {visionData.vision_3y && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2 text-accent">3 Year Vision</h3>
+                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">{visionData.vision_3y}</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Life Wheel Chart */}
-      <LifeWheelChart data={lifeWheelData} />
 
       {/* Selected Values */}
       {selectedValues.length > 0 && (
@@ -130,28 +146,35 @@ export const SelfDiscoverySummary = ({
         </Card>
       )}
 
-      {/* Vision Statements */}
-      {(visionData.vision_1y || visionData.vision_3y) && (
-        <Card className="gradient-card shadow-soft">
+      {/* Focus Areas Highlight */}
+      {focusAreas.length > 0 && (
+        <Card className="gradient-card shadow-soft border-primary/30">
           <CardHeader>
-            <CardTitle>Vision</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span className="text-primary">⭐</span>
+              Focus Areas
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Your top {focusAreas.length} priority {focusAreas.length === 1 ? 'area' : 'areas'}
+            </p>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {visionData.vision_1y && (
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-primary">1 Year Vision</h3>
-                <p className="text-muted-foreground whitespace-pre-wrap">{visionData.vision_1y}</p>
-              </div>
-            )}
-            {visionData.vision_3y && (
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-accent">3 Year Vision</h3>
-                <p className="text-muted-foreground whitespace-pre-wrap">{visionData.vision_3y}</p>
-              </div>
-            )}
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {focusAreas.map((area) => (
+                <Badge 
+                  key={area.area_name}
+                  className="text-sm px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 font-semibold"
+                >
+                  {area.area_name}
+                </Badge>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Life Wheel Chart */}
+      <LifeWheelChart data={lifeWheelData} />
     </div>
   );
 };
