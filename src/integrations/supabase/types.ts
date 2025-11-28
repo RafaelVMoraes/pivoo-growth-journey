@@ -250,6 +250,7 @@ export type Database = {
           current_score: number
           desired_score: number
           id: string
+          is_focus_area: boolean | null
           updated_at: string
           user_id: string
         }
@@ -259,6 +260,7 @@ export type Database = {
           current_score?: number
           desired_score?: number
           id?: string
+          is_focus_area?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -268,6 +270,7 @@ export type Database = {
           current_score?: number
           desired_score?: number
           id?: string
+          is_focus_area?: boolean | null
           updated_at?: string
           user_id?: string
         }

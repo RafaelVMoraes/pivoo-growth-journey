@@ -83,10 +83,25 @@ export const LifeWheelDropdowns = ({ data, onUpdate, saving, categories }: LifeW
   }, [data]);
 
   const handleFocusToggle = (areaName: string, checked: boolean) => {
-    setLocalData(prev => prev.map(area => 
-      area.area_name === areaName ? { ...area, is_focus_area: checked } : area
-    ));
-    onUpdate(areaName, { is_focus_area: checked });
+    const area = localData.find(a => a.area_name === areaName);
+    
+    // If unchecking focus and scores are 9 or 10, cap them at 8
+    if (!checked && area && (area.current_score > 8 || area.desired_score > 8)) {
+      const updates = {
+        is_focus_area: checked,
+        current_score: area.current_score > 8 ? 8 : area.current_score,
+        desired_score: area.desired_score > 8 ? 8 : area.desired_score,
+      };
+      setLocalData(prev => prev.map(a => 
+        a.area_name === areaName ? { ...a, ...updates } : a
+      ));
+      onUpdate(areaName, updates);
+    } else {
+      setLocalData(prev => prev.map(area => 
+        area.area_name === areaName ? { ...area, is_focus_area: checked } : area
+      ));
+      onUpdate(areaName, { is_focus_area: checked });
+    }
   };
 
   const handleScoreChange = (areaName: string, type: 'current' | 'desired', value: string) => {

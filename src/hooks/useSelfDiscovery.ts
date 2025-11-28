@@ -112,7 +112,7 @@ export const useSelfDiscovery = () => {
 
     const { data, error } = await supabase
       .from('life_wheel')
-      .select('area_name, current_score, desired_score')
+      .select('area_name, current_score, desired_score, is_focus_area')
       .eq('user_id', user.id);
 
     if (error) {
@@ -130,7 +130,7 @@ export const useSelfDiscovery = () => {
 
     const mergedData = defaultData.map(defaultArea => {
       const existing = data.find(d => d.area_name === defaultArea.area_name);
-      return existing ? { ...existing, is_focus_area: false } : defaultArea;
+      return existing ? { ...existing, is_focus_area: existing.is_focus_area || false } : defaultArea;
     });
 
     setLifeWheelData(mergedData);
@@ -203,15 +203,21 @@ export const useSelfDiscovery = () => {
     setSaving(true);
     try {
       const currentData = lifeWheelData.find(d => d.area_name === areaName);
+      const dataToUpsert: any = {
+        user_id: user.id,
+        area_name: areaName,
+        current_score: updates.current_score !== undefined ? updates.current_score : (currentData?.current_score || 5),
+        desired_score: updates.desired_score !== undefined ? updates.desired_score : (currentData?.desired_score || 8),
+      };
+      
+      // Include is_focus_area if provided
+      if (updates.is_focus_area !== undefined) {
+        dataToUpsert.is_focus_area = updates.is_focus_area;
+      }
+      
       const { error } = await supabase
         .from('life_wheel')
-        .upsert({
-          user_id: user.id,
-          area_name: areaName,
-          current_score: currentData?.current_score || 5,
-          desired_score: currentData?.desired_score || 8,
-          ...updates
-        }, {
+        .upsert(dataToUpsert, {
           onConflict: 'user_id,area_name'
         });
 
