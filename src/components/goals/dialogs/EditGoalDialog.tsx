@@ -26,6 +26,7 @@ export const EditGoalDialog = ({ goal, isOpen, onClose }: EditGoalDialogProps) =
   const [title, setTitle] = useState(goal.title);
   const [description, setDescription] = useState(goal.description || '');
   const [targetDate, setTargetDate] = useState(goal.target_date || '');
+  const [priority, setPriority] = useState<Goal['priority']>(goal.priority);
   const [selectedAreas, setSelectedAreas] = useState<string[]>(
     Array.isArray(goal.life_wheel_area) ? goal.life_wheel_area : goal.life_wheel_area ? [goal.life_wheel_area] : []
   );
@@ -39,6 +40,7 @@ export const EditGoalDialog = ({ goal, isOpen, onClose }: EditGoalDialogProps) =
     setTitle(goal.title);
     setDescription(goal.description || '');
     setTargetDate(goal.target_date || '');
+    setPriority(goal.priority);
     setSelectedAreas(Array.isArray(goal.life_wheel_area) ? goal.life_wheel_area : goal.life_wheel_area ? [goal.life_wheel_area] : []);
     setSelectedValues(goal.related_values || []);
     setStatus(goal.status);
@@ -70,6 +72,7 @@ export const EditGoalDialog = ({ goal, isOpen, onClose }: EditGoalDialogProps) =
         title: title.trim(),
         description: description.trim() || undefined,
         target_date: targetDate || undefined,
+        priority,
         life_wheel_area: selectedAreas,
         related_values: selectedValues.length > 0 ? selectedValues : undefined,
         status,
@@ -108,6 +111,48 @@ export const EditGoalDialog = ({ goal, isOpen, onClose }: EditGoalDialogProps) =
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Priority</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setPriority('gold')}
+                className={`p-3 rounded-lg border-2 transition-all ${
+                  priority === 'gold'
+                    ? 'border-yellow-500 bg-yellow-500/10'
+                    : 'border-border hover:border-yellow-500/50'
+                }`}
+              >
+                <div className="text-xl mb-1">🥇</div>
+                <div className="text-sm font-medium">Gold</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPriority('silver')}
+                className={`p-3 rounded-lg border-2 transition-all ${
+                  priority === 'silver'
+                    ? 'border-gray-400 bg-gray-400/10'
+                    : 'border-border hover:border-gray-400/50'
+                }`}
+              >
+                <div className="text-xl mb-1">🥈</div>
+                <div className="text-sm font-medium">Silver</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPriority('bronze')}
+                className={`p-3 rounded-lg border-2 transition-all ${
+                  priority === 'bronze'
+                    ? 'border-amber-700 bg-amber-700/10'
+                    : 'border-border hover:border-amber-700/50'
+                }`}
+              >
+                <div className="text-xl mb-1">🥉</div>
+                <div className="text-sm font-medium">Bronze</div>
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">

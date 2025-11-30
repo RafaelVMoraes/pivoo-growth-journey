@@ -42,6 +42,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
   // Step 1 - Basic goal info
   const [title, setTitle] = useState('');
   const [type, setType] = useState<'outcome' | 'process'>('outcome');
+  const [priority, setPriority] = useState<'gold' | 'silver' | 'bronze'>('bronze');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [parentGoalId, setParentGoalId] = useState('');
   const [targetDate, setTargetDate] = useState('');
@@ -63,6 +64,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
     setStep(1);
     setTitle('');
     setType('outcome');
+    setPriority('bronze');
     setSelectedAreas([]);
     setParentGoalId('');
     setTargetDate('');
@@ -87,6 +89,7 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
           description: description.trim() || undefined,
           type,
           status: 'active',
+          priority,
           life_wheel_area: selectedAreas.length > 0 ? selectedAreas : undefined,
           parent_goal_id: parentGoalId || undefined,
           target_date: targetDate || undefined,
@@ -214,6 +217,51 @@ export const AddGoalDialog = ({ children }: AddGoalDialogProps) => {
           placeholder="e.g., Run a marathon, Learn Spanish"
           className="min-h-[44px]"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Priority *</Label>
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => setPriority('gold')}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              priority === 'gold'
+                ? 'border-yellow-500 bg-yellow-500/10'
+                : 'border-border hover:border-yellow-500/50'
+            }`}
+          >
+            <div className="text-2xl mb-2">🥇</div>
+            <div className="font-medium">Gold</div>
+            <div className="text-xs text-muted-foreground">Max 3 goals</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPriority('silver')}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              priority === 'silver'
+                ? 'border-gray-400 bg-gray-400/10'
+                : 'border-border hover:border-gray-400/50'
+            }`}
+          >
+            <div className="text-2xl mb-2">🥈</div>
+            <div className="font-medium">Silver</div>
+            <div className="text-xs text-muted-foreground">Max 5 goals</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPriority('bronze')}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              priority === 'bronze'
+                ? 'border-amber-700 bg-amber-700/10'
+                : 'border-border hover:border-amber-700/50'
+            }`}
+          >
+            <div className="text-2xl mb-2">🥉</div>
+            <div className="font-medium">Bronze</div>
+            <div className="text-xs text-muted-foreground">Unlimited</div>
+          </button>
+        </div>
       </div>
 
       {lifeWheelAreas.length > 0 && (

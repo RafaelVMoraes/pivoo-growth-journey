@@ -6,7 +6,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { AddGoalDialog } from '@/components/goals/dialogs/AddGoalDialog';
 import { ViewToggle } from '@/components/goals/filters/ViewToggle';
 import { StatusTabs } from '@/components/goals/filters/StatusTabs';
-import { HighLevelView } from '@/components/goals/views/HighLevelView';
+import { EnhancedGoalCard } from '@/components/goals/cards/GoalCard';
 import { TasksView } from '@/components/goals/views/TasksView';
 
 type ViewMode = 'high-level' | 'tasks';
@@ -18,7 +18,7 @@ export const Goals = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('high-level');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
 
-  // Filter goals by status
+  // Filter goals by status (already sorted by priority in useGoals)
   const filteredGoals = goals.filter(goal => {
     if (statusFilter === 'active') return goal.status === 'active' || goal.status === 'in_progress';
     if (statusFilter === 'completed') return goal.status === 'completed';
@@ -53,7 +53,21 @@ export const Goals = () => {
         {/* Content Views */}
         <div className="mt-6">
           {viewMode === 'high-level' ? (
-            <HighLevelView goals={filteredGoals} isLoading={isLoading} onRefresh={refetch} />
+            <div className="space-y-4">
+              {isLoading ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : filteredGoals.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No goals found</p>
+                </div>
+              ) : (
+                filteredGoals.map(goal => (
+                  <EnhancedGoalCard key={goal.id} goal={goal} />
+                ))
+              )}
+            </div>
           ) : (
             <TasksView goals={filteredGoals} isLoading={isLoading} />
           )}

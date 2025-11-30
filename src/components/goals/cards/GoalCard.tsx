@@ -25,6 +25,49 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
   const { checkIns } = useCheckIns(goal.id);
   const { activities } = useActivities(goal.id);
 
+  // Calculate current month progress
+  const [currentMonthProgress, setCurrentMonthProgress] = useState(0);
+  
+  useEffect(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const monthCheckIns = checkIns.filter(ci => {
+      const date = new Date(ci.date);
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    });
+    
+    if (activities.length === 0) {
+      setCurrentMonthProgress(0);
+      return;
+    }
+    
+    // Calculate expected check-ins for this month so far
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const daysSoFar = now.getDate();
+    let expectedCheckIns = 0;
+    
+    activities.forEach(activity => {
+      if (activity.frequency_type === 'daily') {
+        expectedCheckIns += daysSoFar;
+      } else if (activity.frequency_type === 'weekly') {
+        const weeksComplete = Math.floor(daysSoFar / 7);
+        expectedCheckIns += weeksComplete * (activity.days_of_week?.length || 1);
+      } else if (activity.frequency_type === 'monthly') {
+        if (activity.day_of_month && activity.day_of_month <= daysSoFar) {
+          expectedCheckIns += 1;
+        }
+      }
+    });
+    
+    const progress = expectedCheckIns > 0 
+      ? Math.min(Math.round((monthCheckIns.length / expectedCheckIns) * 100), 100)
+      : 0;
+    
+    setCurrentMonthProgress(progress);
+  }, [checkIns, activities]);
+
   const subGoals = getSubGoals(goal.id);
 
   // Calculate progress from check-ins
@@ -99,6 +142,15 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
 
   const getTypeEmoji = () => {
     return goal.type === 'outcome' ? '🎯' : '🔄';
+  };
+
+  const getPriorityBadge = () => {
+    const badges = {
+      gold: { emoji: '🥇', label: 'Gold', color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30' },
+      silver: { emoji: '🥈', label: 'Silver', color: 'bg-gray-400/20 text-gray-700 dark:text-gray-400 border-gray-400/30' },
+      bronze: { emoji: '🥉', label: 'Bronze', color: 'bg-amber-700/20 text-amber-800 dark:text-amber-500 border-amber-700/30' },
+    };
+    return badges[goal.priority];
   };
 
   const handleMarkComplete = async () => {
@@ -225,7 +277,12 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
                 <span className="text-lg">{getTypeEmoji()}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg text-foreground leading-tight mb-1">{goal.title}</h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-lg text-foreground leading-tight">{goal.title}</h3>
+                  <Badge className={`${getPriorityBadge().color} font-medium border`}>
+                    {getPriorityBadge().emoji} {getPriorityBadge().label}
+                  </Badge>
+                </div>
                 {goal.description && (
                   <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
                     {goal.description}
@@ -268,6 +325,16 @@ export const EnhancedGoalCard = ({ goal }: EnhancedGoalCardProps) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+          </div>
+
+          {/* Activities & Progress Badge */}
+          <div className="flex items-center gap-3 mb-4">
+            <Badge variant="outline" className="text-sm font-medium">
+              {activities.length} {activities.length === 1 ? 'activity' : 'activities'}
+            </Badge>
+            <Badge variant="outline" className="text-sm font-medium">
+              {currentMonthProgress}% this month
+            </Badge>
           </div>
 
           {/* Type-specific UI */}
