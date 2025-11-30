@@ -152,6 +152,7 @@ export type Database = {
           identity_motivation: string | null
           life_wheel_area: string[] | null
           parent_goal_id: string | null
+          priority: string
           related_values: string[] | null
           status: string | null
           surface_motivation: string | null
@@ -170,6 +171,7 @@ export type Database = {
           identity_motivation?: string | null
           life_wheel_area?: string[] | null
           parent_goal_id?: string | null
+          priority?: string
           related_values?: string[] | null
           status?: string | null
           surface_motivation?: string | null
@@ -188,6 +190,7 @@ export type Database = {
           identity_motivation?: string | null
           life_wheel_area?: string[] | null
           parent_goal_id?: string | null
+          priority?: string
           related_values?: string[] | null
           status?: string | null
           surface_motivation?: string | null
